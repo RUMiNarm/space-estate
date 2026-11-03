@@ -647,11 +647,12 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
   const el = renderer.domElement;
   let down0: { x: number; y: number; t: number } | null = null;
   let hovered: Pick | null = null;
-  el.addEventListener('pointerdown', (e) => (down0 = { x: e.clientX, y: e.clientY, t: performance.now() }));
+  // event timestamps (not handler time) so a slow frame doesn't turn a tap into a long press
+  el.addEventListener('pointerdown', (e) => (down0 = { x: e.clientX, y: e.clientY, t: e.timeStamp }));
   el.addEventListener('pointerup', (e) => {
     if (!down0) return;
     const moved = Math.hypot(e.clientX - down0.x, e.clientY - down0.y);
-    const quick = performance.now() - down0.t < 450;
+    const quick = e.timeStamp - down0.t < 800;
     down0 = null;
     if (moved > 6 || !quick || anim) return;
     const r = el.getBoundingClientRect();
@@ -829,6 +830,10 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
     },
     // used by the smoke test
     debug: () => ({ level, focus: focus?.d.s ?? null, dist: camDist(), jd, busy: !!anim }),
+    pickAt(x: number, y: number) {
+      const r = renderer.domElement.getBoundingClientRect();
+      return hit(x - r.left, y - r.top)?.key ?? null;
+    },
     screenOf(key: string) {
       const p = picks().find((x) => x.key === key);
       if (!p) return null;

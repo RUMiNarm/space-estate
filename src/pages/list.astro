@@ -52,15 +52,15 @@ const cats = Object.entries(report.byCategory).filter(([, n]) => n > 0);
   <section>
     <h2>入居条件（装備レベル）</h2>
     <p class="muted">すべての物件を、住むのに最低限必要な装備で5段階に分けています。判定ルールは<a href={u('/method/#equipment')}>判定方法</a>に記載しています。</p>
-    <div class="table-scroll card">
-      <table>
+    <div class="table-scroll card rwrap">
+      <table class="rtable">
         <thead><tr><th>レベル</th><th>例</th><th class="num">件数</th></tr></thead>
         <tbody>
           {levels.map((l) => (
             <tr>
-              <td><Equip eq={{ level: l, minLevel: 2 }} /></td>
-              <td>{levelExample[String(l)]}</td>
-              <td class="num">{levelCount(l).toLocaleString('ja-JP')}</td>
+              <td class="rt-title"><Equip eq={{ level: l, minLevel: 2 }} /></td>
+              <td data-label="例">{levelExample[String(l)]}</td>
+              <td class="num" data-label="件数">{levelCount(l).toLocaleString('ja-JP')}</td>
             </tr>
           ))}
         </tbody>

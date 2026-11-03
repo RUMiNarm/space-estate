@@ -13,12 +13,16 @@ const e = EQUIP[eq.level ?? 'null'];
   <span class="lv-dot" style={`background:${e.color}`} aria-hidden="true"></span>
   <span aria-hidden="true" class="lv-icon">{e.icon}</span>
   <span>{short ? e.short : e.label}</span>
-  {eq.level == null && !short && <span class="small muted">（少なくとも Lv{eq.minLevel}）</span>}
+  {eq.level == null && !short && <span class="small muted lv-min">少なくとも Lv{eq.minLevel} は必要</span>}
 </span>
 
 <style>
+  .lv-min {
+    flex-basis: 100%;
+    font-weight: 400;
+  }
   .lv-icon {
-    font-size: 0.8em;
+    font-size: 0.85em;
     color: var(--ink-2);
   }
 </style>

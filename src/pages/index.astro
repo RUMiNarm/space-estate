@@ -62,8 +62,8 @@ const links: [string, string][] = [
     </div>
 
     <div class="hint" id="hint" aria-hidden="true">
-      <span><svg viewBox="0 0 24 24" width="26" height="26"><path d="M7 11c0-3 2-5 5-5s5 2 5 5v4a5 5 0 0 1-10 0z M12 6v4" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M3 12h2M19 12h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>ドラッグ</span>
-      <span><svg viewBox="0 0 24 24" width="26" height="26"><rect x="7" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"></rect><path d="M12 7v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>スクロール</span>
+      <span><svg viewBox="0 0 24 24" width="26" height="26"><path d="M7 11c0-3 2-5 5-5s5 2 5 5v4a5 5 0 0 1-10 0z M12 6v4" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M3 12h2M19 12h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg><span class="t-mouse">ドラッグ</span><span class="t-touch">スワイプ</span></span>
+      <span><svg viewBox="0 0 24 24" width="26" height="26"><rect x="7" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"></rect><path d="M12 7v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg><span class="t-mouse">スクロール</span><span class="t-touch">ピンチ</span></span>
     </div>
 
     <div class="card-h" id="card" hidden>
@@ -373,10 +373,27 @@ const links: [string, string][] = [
     transition: opacity 0.8s;
     pointer-events: none;
   }
-  .hint span {
+  .hint > span {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
+  }
+  .hint .t-touch {
+    display: none;
+  }
+  @media (pointer: coarse) {
+    .hint .t-touch {
+      display: inline;
+    }
+    .hint .t-mouse {
+      display: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .hint {
+      bottom: 150px;
+    }
   }
   .hint.gone {
     opacity: 0;

@@ -102,15 +102,17 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
   <header class="hero">
     <Glyph body={b} size={120} />
     <div>
-      <p class="kicker small">{CATEGORY_JA[b.category]}{b.subclass ? `・${b.subclass}` : ''}{b.discoveryYear ? `・${b.discoveryYear}年発見` : ''}</p>
-      <h1>{name}</h1>
-      {b.nameJa && <p class="en muted">{b.name}</p>}
+      <div class="titles">
+        <p class="kicker small">{CATEGORY_JA[b.category]}{b.subclass ? `・${b.subclass}` : ''}{b.discoveryYear ? `・${b.discoveryYear}年発見` : ''}</p>
+        <h1>{name}</h1>
+        {b.nameJa && <p class="en muted">{b.name}</p>}
+      </div>
       <p class="lead">{lead}</p>
       {tags.length > 0 && <div class="tags">{tags.map((t) => <span class="tag">{t}</span>)}</div>}
     </div>
   </header>
   {b.dataWarnings && b.dataWarnings.length > 0 && <p class="card warn small" role="note"><b>データに要注意：</b>{b.dataWarnings.join(' ')}</p>}
-  <p class="small muted glyph-note">左の図はデータから描いた模式図で、実際の画像ではありません。{c ? '' : 'このページの説明文はデータから自動生成しています。'}</p>
+  <p class="small muted glyph-note">天体の図はデータから描いた模式図で、実際の画像ではありません。{c ? '' : 'このページの説明文はデータから自動生成しています。'}</p>
 
   <section class="grid grid-3 verdicts" aria-label="判定">
     <div class="card verdict">
@@ -297,9 +299,39 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
     }
   }
   @media (max-width: 560px) {
+    /* glyph beside the name; catchphrase and tags use the full width */
     .hero {
-      flex-direction: column;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: 68px minmax(0, 1fr);
+      column-gap: 14px;
+      align-items: center;
+    }
+    .hero > div {
+      display: contents;
+    }
+    .hero :global(.glyph) {
+      grid-column: 1;
+      grid-row: 1;
+      width: 68px;
+      height: 68px;
+    }
+    .titles {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .en {
+      margin: 0;
+    }
+    .hero .lead,
+    .hero .tags {
+      grid-column: 1 / -1;
+    }
+    .lead {
+      font-size: 1.02rem;
+      margin-top: 12px;
+    }
+    .big {
+      font-size: 1.08rem;
     }
   }
 </style>

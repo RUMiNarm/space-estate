@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { CATEGORY_JA, EQUIP } from '../../lib/format.ts';
-import { DEFAULT_FILTERS, type Filters, fromQuery, runFilters, type SortKey, sortRows, toQuery } from '../../lib/search.ts';
+import { DEFAULT_FILTERS, type Filters, fromQuery, runFilters, type SortKey, sortRows, steps, toQuery } from '../../lib/search.ts';
 import type { Category, EquipmentLevel } from '../../lib/types.ts';
 import { RESULT_CSS, RowItem, useIndex } from './shared.tsx';
 
@@ -29,8 +29,11 @@ export default function Search({ preset, syncUrl = true }: Props) {
   const [sort, setSort] = useState<SortKey>('esi');
   const [limit, setLimit] = useState(PAGE);
   const [ready, setReady] = useState(false);
+  // phones: conditions start folded so results are visible right away
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
+    if (matchMedia('(max-width: 640px)').matches) setOpen(false);
     if (syncUrl) {
       const s = fromQuery(location.search, base);
       setF(s.f);
@@ -54,6 +57,7 @@ export default function Search({ preset, syncUrl = true }: Props) {
     return () => clearTimeout(id);
   }, [funnel]);
   const sorted = useMemo(() => (funnel ? sortRows(funnel.rows, sort) : []), [funnel, sort]);
+  const activeCount = steps(f).filter((s) => s.key !== 'q' && !(preset?.cats && s.key === 'cat') && !(preset?.parent && s.key === 'parent')).length;
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setF((p) => ({ ...p, [k]: v }));
   const numOrNull = (s: string) => (s.trim() === '' || !Number.isFinite(Number(s)) ? null : Number(s));
 
@@ -73,6 +77,13 @@ export default function Search({ preset, syncUrl = true }: Props) {
             </select>
           </label>
         </div>
+        <button type="button" class="btn ftoggle" aria-expanded={open} aria-controls="more-filters" onClick={() => setOpen(!open)}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+          絞り込み
+          {activeCount > 0 && <span class="fcount">{activeCount}</span>}
+          <span class="chev" aria-hidden="true">{open ? '▲' : '▼'}</span>
+        </button>
+        <div class="more" id="more-filters" data-open={String(open)}>
         <fieldset>
           <legend>種類</legend>
           {CATS.map((c) => (
@@ -105,20 +116,40 @@ export default function Search({ preset, syncUrl = true }: Props) {
           </fieldset>
           <fieldset>
             <legend>範囲</legend>
-            <label class="rng">代表温度 <input type="number" step="10" aria-label="代表温度の下限（°C）" value={f.tMinC ?? ''} placeholder="下限" onInput={(e) => set('tMinC', numOrNull((e.target as HTMLInputElement).value))} /> 〜 <input type="number" step="10" aria-label="代表温度の上限（°C）" value={f.tMaxC ?? ''} placeholder="上限" onInput={(e) => set('tMaxC', numOrNull((e.target as HTMLInputElement).value))} /> °C</label>
-            <label class="rng">重力 <input type="number" step="0.1" min="0" aria-label="重力の下限（地球=1）" value={f.gMin ?? ''} placeholder="下限" onInput={(e) => set('gMin', numOrNull((e.target as HTMLInputElement).value))} /> 〜 <input type="number" step="0.1" min="0" aria-label="重力の上限（地球=1）" value={f.gMax ?? ''} placeholder="上限" onInput={(e) => set('gMax', numOrNull((e.target as HTMLInputElement).value))} /> 倍</label>
-            <label class="rng">距離 <input type="number" step="10" min="0" aria-label="距離の上限（光年）" value={f.dMaxLy ?? ''} placeholder="上限" onInput={(e) => set('dMaxLy', numOrNull((e.target as HTMLInputElement).value))} /> 光年以内</label>
-            <label class="rng">
-              入居条件
-              <select value={f.eqMax ?? ''} onChange={(e) => { const v = (e.target as HTMLSelectElement).value; set('eqMax', v === '' ? null : (Number(v) as EquipmentLevel)); }}>
+            <div class="rng">
+              <span class="lbl">代表温度（°C）</span>
+              <span class="pair">
+                <input type="number" inputMode="numeric" step="10" aria-label="代表温度の下限（°C）" value={f.tMinC ?? ''} placeholder="下限" onInput={(e) => set('tMinC', numOrNull((e.target as HTMLInputElement).value))} />
+                <span aria-hidden="true">〜</span>
+                <input type="number" inputMode="numeric" step="10" aria-label="代表温度の上限（°C）" value={f.tMaxC ?? ''} placeholder="上限" onInput={(e) => set('tMaxC', numOrNull((e.target as HTMLInputElement).value))} />
+              </span>
+            </div>
+            <div class="rng">
+              <span class="lbl">重力（地球=1）</span>
+              <span class="pair">
+                <input type="number" inputMode="decimal" step="0.1" min="0" aria-label="重力の下限（地球=1）" value={f.gMin ?? ''} placeholder="下限" onInput={(e) => set('gMin', numOrNull((e.target as HTMLInputElement).value))} />
+                <span aria-hidden="true">〜</span>
+                <input type="number" inputMode="decimal" step="0.1" min="0" aria-label="重力の上限（地球=1）" value={f.gMax ?? ''} placeholder="上限" onInput={(e) => set('gMax', numOrNull((e.target as HTMLInputElement).value))} />
+              </span>
+            </div>
+            <div class="rng">
+              <span class="lbl">距離（光年以内）</span>
+              <span class="pair">
+                <input type="number" inputMode="numeric" step="10" min="0" aria-label="距離の上限（光年）" value={f.dMaxLy ?? ''} placeholder="上限" onInput={(e) => set('dMaxLy', numOrNull((e.target as HTMLInputElement).value))} />
+              </span>
+            </div>
+            <div class="rng">
+              <span class="lbl">入居条件</span>
+              <select value={f.eqMax ?? ''} aria-label="入居条件" onChange={(e) => { const v = (e.target as HTMLSelectElement).value; set('eqMax', v === '' ? null : (Number(v) as EquipmentLevel)); }}>
                 <option value="">指定なし</option>
                 {([0, 1, 2, 3] as EquipmentLevel[]).map((l) => <option value={l}>{EQUIP[l].label} まで</option>)}
               </select>
-            </label>
+            </div>
           </fieldset>
         </div>
         <div class="row">
           <button type="button" class="btn" onClick={() => { setF(base); setSort('esi'); }}>条件をリセット</button>
+        </div>
         </div>
       </form>
 
@@ -161,12 +192,18 @@ const CSS = `
 .filters .grow{flex:1}
 .filters label{display:flex;flex-direction:column;gap:4px}
 .filters label.chk{flex-direction:row;display:inline-flex;margin:2px 12px 2px 0;white-space:normal}
-.filters label.rng{flex-direction:row;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0}
-.filters input[type=number]{width:6.5em}
+.filters .more{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.filters .rng{display:grid;gap:4px;margin:6px 0}
+.filters .pair{display:flex;align-items:center;gap:8px}
+.filters .pair input{flex:1 1 0;min-width:0;width:100%}
+.filters .rng select{width:100%}
+.ftoggle{display:none;justify-content:center}
+.fcount{display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:.8rem;font-weight:700}
+.chev{font-size:.7rem;color:var(--ink-2)}
 .lbl{font-size:.85rem;color:var(--ink-2)}
 .filters input[type=search]{width:100%}
 .funnel{display:flex;flex-wrap:wrap;gap:4px 10px;margin:0 0 12px;font-size:.9rem;color:var(--ink-2)}
 .funnel b{color:var(--ink)}
 .arrow{color:var(--muted)}
-@media (max-width:560px){.filters .row{flex-direction:column;align-items:stretch}}
+@media (max-width:640px){.filters .row{flex-direction:column;align-items:stretch}.ftoggle{display:inline-flex}.filters .more[data-open=false]{display:none}.filters label.chk{margin:6px 14px 6px 0}.filters input,.filters select{font-size:16px;min-height:44px}.filters input[type=checkbox]{min-height:0}}
 `;

@@ -35,20 +35,19 @@ const tables: { id: string; title: string; note: string; rows: Body[]; value: (b
     <section id={t.id}>
       <h2>{t.title}</h2>
       <p class="small muted">{t.note}</p>
-      <div class="table-scroll card">
-        <table>
+      <div class="table-scroll card rwrap">
+        <table class="rtable compact">
           <thead><tr><th class="num">#</th><th>物件</th><th>値</th><th>立地</th><th>入居条件</th></tr></thead>
           <tbody>
             {t.rows.map((b, i) => (
               <tr>
-                <td class="num">{i + 1}</td>
-                <td><a href={url.body(b.slug)}>{displayName(b)}</a><div class="small muted">{CATEGORY_JA[b.category]}{b.category === 'exoplanet' ? `・${fmtLy(b.distanceLy.v)}` : ''}</div></td>
-                <td class="num val">
-                  {t.bar && <span class="bar" style={`width:${Math.round(t.bar(b) * 80)}px`} aria-hidden="true"></span>}
-                  {t.value(b)}
+                <td class="num rt-hide">{i + 1}</td>
+                <td class="rt-title"><span class="rk">{i + 1}.</span><a href={url.body(b.slug)}>{displayName(b)}</a><div class="small muted">{CATEGORY_JA[b.category]}{b.category === 'exoplanet' ? `・${fmtLy(b.distanceLy.v)}` : ''}</div></td>
+                <td class="num val rt-val" data-label="値">
+                  <span class="valline">{t.bar && <span class="bar" style={`width:${Math.round(t.bar(b) * 80)}px`} aria-hidden="true"></span>}{t.value(b)}</span>
                 </td>
-                <td class="small">{HZ_JA[b.hz.status]}</td>
-                <td><Equip eq={b.equipment} short /></td>
+                <td class="small rt-sub" data-label="立地">{HZ_JA[b.hz.status]}</td>
+                <td class="rt-sub" data-label="入居条件"><Equip eq={b.equipment} short /></td>
               </tr>
             ))}
           </tbody>

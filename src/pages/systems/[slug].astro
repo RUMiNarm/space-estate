@@ -46,18 +46,18 @@ if (host) for (const v of [host.teffK, host.radiusSun, host.lumLogSun]) if (v.sr
   {sys.hzInnerAU == null && !isSolar && <p class="small muted">主星の温度・明るさが分からないか、モデルの適用範囲外のため、ハビタブルゾーンを描けません。</p>}
 
   <h2>物件一覧</h2>
-  <div class="table-scroll">
-    <table>
+  <div class="table-scroll rwrap">
+    <table class="rtable">
       <thead><tr><th>物件</th><th>恒星からの距離</th><th>半径（地球=1）</th><th>代表温度</th><th>立地</th><th>入居条件</th></tr></thead>
       <tbody>
         {members.map((m) => (
           <tr>
-            <td><a href={url.body(m.slug)}>{displayName(m)}</a>{m.nameJa && m.nameJa !== m.name && <div class="small muted">{m.name}</div>}</td>
-            <td class="num">{m.aAU.v != null ? `${fmt(m.aAU.v)} au` : '不明'}</td>
-            <td class="num">{m.radiusE.v != null ? `${fmt(m.radiusE.v)}${m.radiusE.c === 'calculated' ? '（計算値）' : ''}` : '不明'}</td>
-            <td class="num">{fmtTemp(representativeTempK(m))}</td>
-            <td>{m.category === 'star' ? '—' : HZ_JA[m.hz.status]}</td>
-            <td><Equip eq={m.equipment} short /></td>
+            <td class="rt-title"><a href={url.body(m.slug)}>{displayName(m)}</a>{m.nameJa && m.nameJa !== m.name && <div class="small muted">{m.name}</div>}</td>
+            <td class="num" data-label="恒星からの距離">{m.aAU.v != null ? `${fmt(m.aAU.v)} au` : '不明'}</td>
+            <td class="num" data-label="半径（地球=1）">{m.radiusE.v != null ? `${fmt(m.radiusE.v)}${m.radiusE.c === 'calculated' ? '（計算値）' : ''}` : '不明'}</td>
+            <td class="num" data-label="代表温度">{fmtTemp(representativeTempK(m))}</td>
+            <td data-label="立地">{m.category === 'star' ? '—' : HZ_JA[m.hz.status]}</td>
+            <td data-label="入居条件"><Equip eq={m.equipment} short /></td>
           </tr>
         ))}
       </tbody>

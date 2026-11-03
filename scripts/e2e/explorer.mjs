@@ -31,6 +31,14 @@ async function open(viewport, hash = '') {
 }
 const dbg = (page) => page.evaluate(() => window.__explorer.debug());
 const at = (page, key) => page.evaluate((k) => window.__explorer.screenOf(k), key);
+/** Poll the page URL (waitForURL can miss a navigation that starts during another evaluate). */
+async function urlBecomes(page, re, ms = 8000) {
+  for (let t = 0; t < ms; t += 150) {
+    if (re.test(page.url())) return true;
+    await page.waitForTimeout(150);
+  }
+  return re.test(page.url());
+}
 /** Fire wheel events at a realistic rate (one gesture) from inside the page. */
 async function wheel(page, deltaY, count) {
   await page.waitForFunction(() => !window.__explorer.debug().busy, null, { timeout: 15000 });
@@ -72,16 +80,14 @@ async function clickKey(page, key, dx = 0, dy = 0) {
   check(d.level === 'planet' && d.focus === 'jupiter', `clicking around Jupiter zooms in (${d.level}/${d.focus})`);
   if (shots) await page.screenshot({ path: `${shots}/explorer-jupiter.png` });
 
-  const nav = page.waitForURL(/\/bodies\/io\/$/, { timeout: 6000 }).then(() => true, () => false);
   await clickKey(page, 'io');
-  check(await nav, 'clicking Io opens its page');
+  check(await urlBecomes(page, /\/bodies\/io\/$/), 'clicking Io opens its page');
 
   await page.goto(`${base}/`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__explorer);
   await page.waitForTimeout(2200);
-  const nav2 = page.waitForURL(/\/bodies\/saturn\/$/, { timeout: 6000 }).then(() => true, () => false);
   await clickKey(page, 'saturn');
-  check(await nav2, 'clicking Saturn itself opens its page');
+  check(await urlBecomes(page, /\/bodies\/saturn\/$/), 'clicking Saturn itself opens its page');
 
   await page.goto(`${base}/`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__explorer);
@@ -97,10 +103,9 @@ async function clickKey(page, key, dx = 0, dy = 0) {
   await page.waitForTimeout(1500);
   d = await dbg(page);
   check(d.level === 'system', `clicking a star opens its planetary system (${d.level})`);
-  const nav3 = page.waitForURL(/\/bodies\/proxima-cen-b\/$/, { timeout: 6000 }).then(() => true, () => false);
   await page.waitForTimeout(300);
   await clickKey(page, 'proxima-cen-b');
-  check(await nav3, 'clicking an exoplanet opens its page');
+  check(await urlBecomes(page, /\/bodies\/proxima-cen-b\/$/), 'clicking an exoplanet opens its page');
 
   await page.goto(`${base}/#galaxy`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__explorer);

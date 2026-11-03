@@ -87,7 +87,10 @@ export function autoText(b: Body): AutoText {
       : b.category === 'moon'
         ? `${b.parentName}の衛星`
         : `太陽系の${b.subclass ?? CATEGORY_JA[b.category]}`;
-  const summary = `${where}です。${b.survival.summary}`;
+  // keep the lead short: the survival verdict has its own card right below
+  const place =
+    b.hz.status === 'inside' ? 'ハビタブルゾーンの内側を回っています。' : b.hz.status === 'optimistic' ? '楽観的なハビタブルゾーンの内側を回っています。' : '';
+  const summary = `${where}です。${place}`;
 
   return { summary, pros, cons, earthLife: life, tags };
 }

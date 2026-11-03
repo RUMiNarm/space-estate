@@ -118,15 +118,15 @@ export default function Compare() {
       )}
 
       {chosen.length > 0 && (
-        <div class="card table-scroll">
-          <table>
+        <div class="card table-scroll rwrap">
+          <table class="rtable">
             <caption class="small muted" style={{ textAlign: 'left' }}>比較表（グラフと同じ値）</caption>
             <thead><tr><th>項目</th>{chosen.map((r, i) => <th><span class="sw" style={{ background: COLORS[i] }} aria-hidden="true" /> {name(r)}</th>)}</tr></thead>
             <tbody>
-              <tr><th>種類</th>{chosen.map((r) => <td>{CATEGORY_JA[r.c]}</td>)}</tr>
-              <tr><th>入居条件</th>{chosen.map((r) => <td><EquipBadge r={r} /></td>)}</tr>
-              <tr><th>立地</th>{chosen.map((r) => <td>{r.c === 'star' ? '—' : HZ_JA[r.hz]}</td>)}</tr>
-              {METRICS.map((m) => <tr><th>{m.label}</th>{chosen.map((r) => { const v = m.get(r); return <td class="num">{v == null ? '不明' : `${m.fmt(v)}${m.key === 'rad' && r.rc ? '＊（計算値）' : ''}`}</td>; })}</tr>)}
+              <tr><th class="rt-title">種類</th>{chosen.map((r) => <td data-label={name(r)}>{CATEGORY_JA[r.c]}</td>)}</tr>
+              <tr><th class="rt-title">入居条件</th>{chosen.map((r) => <td data-label={name(r)}><EquipBadge r={r} /></td>)}</tr>
+              <tr><th class="rt-title">立地</th>{chosen.map((r) => <td data-label={name(r)}>{r.c === 'star' ? '—' : HZ_JA[r.hz]}</td>)}</tr>
+              {METRICS.map((m) => <tr><th class="rt-title">{m.label}</th>{chosen.map((r) => { const v = m.get(r); return <td class="num" data-label={name(r)}>{v == null ? '不明' : `${m.fmt(v)}${m.key === 'rad' && r.rc ? '＊（計算値）' : ''}`}</td>; })}</tr>)}
             </tbody>
           </table>
         </div>
@@ -143,11 +143,13 @@ const CSS = `
 .legend{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:2px 4px 2px 10px;background:var(--surface-2)}
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px}
-.x{border:0;background:none;color:var(--ink-2);font-size:1.1rem;cursor:pointer;padding:0 6px;line-height:1}
-.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:16px}
+.x{border:0;background:none;color:var(--ink-2);font-size:1.2rem;cursor:pointer;line-height:1;min-width:32px;min-height:32px;border-radius:999px}
+.x:hover{background:var(--surface)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-bottom:16px}
 .chart{margin:0}
 .chart figcaption{margin-bottom:8px}
 .bar-row{display:grid;grid-template-columns:7.5em 1fr auto;gap:8px;align-items:center;padding:3px 0;transition:opacity .15s}
+@media (max-width:420px){.bar-row{grid-template-columns:6em 1fr auto;gap:6px}}
 .bar-row.dim{opacity:.35}
 .bl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
 .track{height:14px;background:var(--surface-2);border-radius:0 4px 4px 0;position:relative}

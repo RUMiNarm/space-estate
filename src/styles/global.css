@@ -105,7 +105,9 @@ body {
   font-family: var(--font);
   font-size: 16px;
   line-height: 1.7;
-  overflow-wrap: anywhere;
+  /* break-word (not anywhere) so table columns keep their natural width instead of collapsing to one character */
+  overflow-wrap: break-word;
+  line-break: strict;
 }
 a {
   color: var(--accent-ink);
@@ -238,7 +240,7 @@ th {
 }
 .badge-conf {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   padding: 0 6px;
   border-radius: 4px;
   border: 1px solid var(--border);
@@ -263,8 +265,9 @@ th {
 }
 .lv {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 2px 6px;
   font-weight: 600;
 }
 .lv-dot {
@@ -304,4 +307,157 @@ label.chk {
   margin-right: 12px;
   white-space: nowrap;
   cursor: pointer;
+}
+
+td.num,
+th.num,
+td .num {
+  white-space: nowrap;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+/* ---------- responsive tables: rows become cards on phones ---------- */
+@media (max-width: 640px) {
+  .toc a {
+    display: inline-block;
+    padding: 6px 0;
+  }
+  input[type='search'],
+  input[type='number'],
+  select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  h1 {
+    font-size: 1.55rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+    margin-top: 1.6rem;
+  }
+  .card {
+    padding: 14px;
+  }
+  .rwrap {
+    background: none;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    overflow: visible;
+  }
+  .rtable,
+  .rtable tbody,
+  .rtable tr {
+    display: block;
+    width: 100%;
+  }
+  .rtable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .rtable caption {
+    display: block;
+    margin-bottom: 6px;
+  }
+  .rtable tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .rtable td,
+  .rtable th {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    border: 0;
+    padding: 0;
+    text-align: left;
+    white-space: normal;
+    min-width: 0;
+  }
+  .rtable td::before,
+  .rtable th[data-label]::before {
+    content: attr(data-label);
+    color: var(--ink-2);
+    font-size: 0.78rem;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+  .rtable .rt-title {
+    grid-column: 1 / -1;
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .rtable .rt-title::before {
+    content: none;
+  }
+  .rtable .rt-title {
+    order: -1;
+  }
+  .rtable .rt-block {
+    grid-column: 1 / -1;
+    order: 2;
+  }
+  /* compact list variant (rankings): name + value on one line, location + level below */
+  .rtable.compact tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+  }
+  .rtable.compact .rt-title {
+    grid-column: 1;
+  }
+  .rtable.compact td::before {
+    content: none;
+  }
+  .rtable.compact .rt-val {
+    grid-column: 2;
+    grid-row: 1;
+    align-items: flex-end;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .rtable.compact .rt-val .bar {
+    display: none;
+  }
+  .rtable.compact .rt-sub {
+    grid-row: 2;
+    font-size: 0.85rem;
+    color: var(--ink-2);
+  }
+  .rtable.compact .rt-sub + .rt-sub {
+    align-items: flex-end;
+  }
+  .rtable td:empty,
+  .rtable .rt-hide {
+    display: none;
+  }
+  .rtable .rk {
+    display: inline;
+  }
+}
+.rk {
+  display: none;
+  color: var(--ink-2);
+  margin-right: 6px;
+  font-variant-numeric: tabular-nums;
 }

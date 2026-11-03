@@ -47,7 +47,6 @@ export function RowItem({ r, note }: { r: IndexRow; note?: string }) {
         <div class="small muted">
           {CATEGORY_JA[r.c]}
           {r.sc ? `・${r.sc}` : ''}
-          {r.c === 'exoplanet' ? `・${r.sy.replace(/^sys-/, '')}` : ''}
           {r.cu && <span class="tag" style={{ marginLeft: 6 }}>厳選</span>}
         </div>
         {note && <div class="small" style={{ color: 'var(--tag-ink)' }}>{note}</div>}

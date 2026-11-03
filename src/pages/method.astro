@@ -33,14 +33,14 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
   <section id="data">
     <h2>データ</h2>
     <p>{report.fetchedAt.slice(0, 10)} に一次ソースから取得したスナップショットを正規化しています（正規化 {report.normalizedAt.slice(0, 10)}）。</p>
-    <div class="table-scroll card">
-      <table>
+    <div class="table-scroll card rwrap">
+      <table class="rtable">
         <thead><tr><th>カテゴリ</th><th class="num">件数</th><th>取得元</th></tr></thead>
         <tbody>
-          <tr><td>{CATEGORY_JA.star}・{CATEGORY_JA.planet}</td><td class="num">{(report.byCategory.star ?? 0) + (report.byCategory.planet ?? 0)}</td><td>NASA NSSDC Planetary Fact Sheets（比較表と各天体のファクトシート）</td></tr>
-          <tr><td>{CATEGORY_JA.moon}</td><td class="num">{report.byCategory.moon}</td><td>JPL SSD（発見状況・平均軌道要素・物理量）、NASA 衛星ファクトシート。月は NASA Moon Fact Sheet</td></tr>
-          <tr><td>{CATEGORY_JA.dwarf}・{CATEGORY_JA.small}・{CATEGORY_JA.comet}</td><td class="num">{(report.byCategory.dwarf ?? 0) + (report.byCategory.small ?? 0) + (report.byCategory.comet ?? 0)}</td><td>JPL Small-Body Database API（直径100 km以上、明るい外縁天体、個別に選んだ天体）。冥王星は NASA Pluto Fact Sheet</td></tr>
-          <tr><td>{CATEGORY_JA.exoplanet}</td><td class="num">{report.byCategory.exoplanet}</td><td>NASA Exoplanet Archive「Planetary Systems Composite Parameters」の全件（{report.systems - 1} 恒星系）</td></tr>
+          <tr><td class="rt-title">{CATEGORY_JA.star}・{CATEGORY_JA.planet}</td><td class="num" data-label="件数">{(report.byCategory.star ?? 0) + (report.byCategory.planet ?? 0)}</td><td class="rt-block" data-label="取得元">NASA NSSDC Planetary Fact Sheets（比較表と各天体のファクトシート）</td></tr>
+          <tr><td class="rt-title">{CATEGORY_JA.moon}</td><td class="num" data-label="件数">{report.byCategory.moon}</td><td class="rt-block" data-label="取得元">JPL SSD（発見状況・平均軌道要素・物理量）、NASA 衛星ファクトシート。月は NASA Moon Fact Sheet</td></tr>
+          <tr><td class="rt-title">{CATEGORY_JA.dwarf}・{CATEGORY_JA.small}・{CATEGORY_JA.comet}</td><td class="num" data-label="件数">{(report.byCategory.dwarf ?? 0) + (report.byCategory.small ?? 0) + (report.byCategory.comet ?? 0)}</td><td class="rt-block" data-label="取得元">JPL Small-Body Database API（直径100 km以上、明るい外縁天体、個別に選んだ天体）。冥王星は NASA Pluto Fact Sheet</td></tr>
+          <tr><td class="rt-title">{CATEGORY_JA.exoplanet}</td><td class="num" data-label="件数">{report.byCategory.exoplanet}</td><td class="rt-block" data-label="取得元">NASA Exoplanet Archive「Planetary Systems Composite Parameters」の全件（{report.systems - 1} 恒星系）</td></tr>
         </tbody>
       </table>
     </div>
@@ -64,16 +64,16 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
 
   <section id="equipment">
     <h2>装備レベルの判定（本サイトの分類ルール）</h2>
-    <div class="table-scroll card">
-      <table>
+    <div class="table-scroll card rwrap">
+      <table class="rtable">
         <thead><tr><th>レベル</th><th>条件（上から順に判定）</th></tr></thead>
         <tbody>
-          <tr><td><Equip eq={{ level: 4, minLevel: 4 }} /></td><td>恒星／代表温度1,000°C以上／地面がない／気圧10 bar以上かつ500 K以上</td></tr>
-          <tr><td><Equip eq={{ level: null, minLevel: 2 }} /></td><td>大気または地表の状態が分からない（少なくとも Lv2 は必要）</td></tr>
-          <tr><td><Equip eq={{ level: 3, minLevel: 3 }} /></td><td>強い放射線（出典つきで指定した天体）／代表温度300°C以上／気圧5 bar超</td></tr>
-          <tr><td><Equip eq={{ level: 1, minLevel: 1 }} /></td><td>厚い大気があり、気圧0.5〜5 bar、ただし呼吸できる酸素がない</td></tr>
-          <tr><td><Equip eq={{ level: 2, minLevel: 2 }} /></td><td>上のどれにも当てはまらない（気圧がほとんどない）</td></tr>
-          <tr><td><Equip eq={{ level: 0, minLevel: 0 }} /></td><td>地球</td></tr>
+          <tr><td class="rt-title"><Equip eq={{ level: 4, minLevel: 4 }} /></td><td class="rt-block" data-label="条件">恒星／代表温度1,000°C以上／地面がない／気圧10 bar以上かつ500 K以上</td></tr>
+          <tr><td class="rt-title"><Equip eq={{ level: null, minLevel: 2 }} /></td><td class="rt-block" data-label="条件">大気または地表の状態が分からない（少なくとも Lv2 は必要）</td></tr>
+          <tr><td class="rt-title"><Equip eq={{ level: 3, minLevel: 3 }} /></td><td class="rt-block" data-label="条件">強い放射線（出典つきで指定した天体）／代表温度300°C以上／気圧5 bar超</td></tr>
+          <tr><td class="rt-title"><Equip eq={{ level: 1, minLevel: 1 }} /></td><td class="rt-block" data-label="条件">厚い大気があり、気圧0.5〜5 bar、ただし呼吸できる酸素がない</td></tr>
+          <tr><td class="rt-title"><Equip eq={{ level: 2, minLevel: 2 }} /></td><td class="rt-block" data-label="条件">上のどれにも当てはまらない（気圧がほとんどない）</td></tr>
+          <tr><td class="rt-title"><Equip eq={{ level: 0, minLevel: 0 }} /></td><td class="rt-block" data-label="条件">地球</td></tr>
         </tbody>
       </table>
     </div>
@@ -96,16 +96,16 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
   <section id="factcheck">
     <h2>参考動画のファクトチェック</h2>
     <p class="muted">企画の参考にした ゆる天文学ラジオ「移住マイスター」シリーズ3本の内容を、2026-11-01 に一次ソースで照合しました。</p>
-    <div class="table-scroll card">
-      <table>
+    <div class="table-scroll card rwrap">
+      <table class="rtable">
         <thead><tr><th>回</th><th>動画での内容</th><th>一次ソースでの照合結果</th><th>判定</th></tr></thead>
         <tbody>
           {FACTCHECK.map((f) => (
             <tr>
-              <td class="small nowrap">{f.video}</td>
-              <td>{f.slug ? <a href={url.body(f.slug)}>{f.claim}</a> : f.claim}</td>
-              <td class="small">{f.result}</td>
-              <td class="nowrap"><span class={`tag ${f.verdict === '正しい' || f.verdict === 'ほぼ正しい' ? 'accent' : ''}`}>{f.verdict}</span></td>
+              <td class="small nowrap" data-label="回">{f.video}</td>
+              <td class="rt-title">{f.slug ? <a href={url.body(f.slug)}>{f.claim}</a> : f.claim}</td>
+              <td class="small rt-block" data-label="照合結果">{f.result}</td>
+              <td class="nowrap" data-label="判定"><span class={`tag ${f.verdict === '正しい' || f.verdict === 'ほぼ正しい' ? 'accent' : ''}`}>{f.verdict}</span></td>
             </tr>
           ))}
         </tbody>
