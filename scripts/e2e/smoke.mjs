@@ -37,8 +37,8 @@ for (const [label, viewport, scheme] of [
     if (shots) await page.screenshot({ path: `${shots}/${label}-${name}.png`, fullPage: false });
   };
 
-  await visit('/', 'home');
-  check((await page.locator('h1').innerText()).includes('地球'), `[${label}] home h1`);
+  await visit('/list/', 'list');
+  check((await page.locator('h1').innerText()).includes('地球'), `[${label}] list page h1`);
 
   await visit('/bodies/mars/', 'mars');
   check(await page.getByText('与圧服').first().isVisible(), `[${label}] Mars shows pressure-suit verdict`);

@@ -11,6 +11,7 @@ const { title, description = '住めない星も含め、一次ソースにあ�
 const { report } = data();
 const fetched = report.fetchedAt.slice(0, 10);
 const nav = [
+  ['/list/', '一覧'],
   ['/search/', '物件検索'],
   ['/guided/', 'ガイド付き検索'],
   ['/catalog/', 'カタログ'],
@@ -20,7 +21,7 @@ const nav = [
   ['/method/', '判定方法と出典'],
 ];
 const path = Astro.url.pathname;
-const fullTitle = title === '宇宙物件ガイド' ? title : `${title}｜宇宙物件ガイド`;
+const fullTitle = `${title}｜宇宙物件ガイド`;
 ---
 
 <!doctype html>

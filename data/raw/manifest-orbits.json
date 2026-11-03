@@ -1,0 +1,53 @@
+{
+  "fetchedAt": "2026-11-03T16:19:06.824Z",
+  "files": [
+    {
+      "path": "sbdb/orbits-diameter-ge-100.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=pdes,a,e,i,om,w,ma,epoch&sb-cdata=%7B%22AND%22%3A%5B%22diameter%7CGE%7C100%22%5D%7D"
+    },
+    {
+      "path": "sbdb/orbits-tno-bright.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=pdes,a,e,i,om,w,ma,epoch&sb-cdata=%7B%22AND%22%3A%5B%22class%7CEQ%7CTNO%22%2C%22H%7CLE%7C4.5%22%5D%7D"
+    },
+    {
+      "path": "exoplanet-archive/hosts.csv",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select%20hostname%2Cra%2Cdec%2Csy_dist%20from%20pscomppars&format=csv"
+    },
+    {
+      "path": "horizons/mercury-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27199%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/venus-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27299%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/earth-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27399%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/mars-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27499%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/jupiter-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27599%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/saturn-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27699%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/uranus-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27799%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/neptune-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27899%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    },
+    {
+      "path": "horizons/pluto-2026-11-03.json",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27999%27&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=VECTORS&CENTER=%27500%4010%27&START_TIME=%272026-11-03%27&STOP_TIME=%272026-11-03+00%3A01%27&STEP_SIZE=%271m%27&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&OUT_UNITS=AU-D&VEC_TABLE=1&CSV_FORMAT=YES"
+    }
+  ]
+}

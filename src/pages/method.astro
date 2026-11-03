@@ -15,7 +15,20 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
 
 <Base title="判定方法と出典" description="データの取得元、判定ルール、計算式、動画のファクトチェック。">
   <h1>判定方法と出典</h1>
-  <nav class="toc small"><a href="#data">データ</a><a href="#survival">生存時間</a><a href="#equipment">装備レベル</a><a href="#formulas">計算式</a><a href="#factcheck">ファクトチェック</a><a href="#sources">出典一覧</a></nav>
+  <nav class="toc small"><a href="#explorer">3D 表示</a><a href="#data">データ</a><a href="#survival">生存時間</a><a href="#equipment">装備レベル</a><a href="#formulas">計算式</a><a href="#factcheck">ファクトチェック</a><a href="#sources">出典一覧</a></nav>
+
+  <section id="explorer">
+    <h2>3D 表示について</h2>
+    <ul>
+      <li>惑星と冥王星の位置は NASA Planetary Fact Sheet の J2000 平均軌道要素（軌道長半径・離心率・軌道傾斜角・昇交点黄経・近日点黄経・平均黄経）から、二体問題（ケプラー運動）で計算しています。公転周期は軌道長半径からケプラーの第3法則で求めます。2026-11-03 の位置を JPL Horizons と比べ、9天体とも方向のずれは3°以内です（テストで確認）。</li>
+      <li>準惑星・小天体・彗星は JPL Small-Body Database の軌道要素、衛星は JPL SSD の平均軌道要素を使います。双曲線軌道の天体は描いていません。</li>
+      <li>太陽系の距離は √（距離）で、惑星・衛星の大きさは対数で誇張しています。衛星の距離も対数で縮めています。</li>
+      <li>恒星（系外惑星の主星）は NASA Exoplanet Archive の赤経・赤緯・距離から銀河座標に変換し、方向は正しく、距離は対数で縮めて表示しています。</li>
+      <li>天の川銀河の渦巻きはイメージです。大きさと太陽系の位置は NASA の「円盤の直径は10万光年以上、地球は中心から約半分の位置」という説明に合わせています。この画面の恒星（水色）は実際の距離で配置しています。</li>
+      <li>系外惑星の軌道の向きと現在の位置は分からないため、恒星系の画面では軌道を同じ平面に描き、位置は仮のものです。</li>
+    </ul>
+    <p class="small"><a href="https://science.nasa.gov/universe/galaxies/" rel="noopener">NASA Science: Galaxies</a>・<a href="https://ssd.jpl.nasa.gov/horizons/" rel="noopener">JPL Horizons</a></p>
+  </section>
 
   <section id="data">
     <h2>データ</h2>

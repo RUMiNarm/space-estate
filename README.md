@@ -18,6 +18,11 @@ node scripts/e2e/smoke.mjs http://127.0.0.1:4321   # preview 起動中に Playwr
 
 クラウド環境など Node の `fetch` が `HTTPS_PROXY` を読まない環境のため、`data:fetch` は `NODE_USE_ENV_PROXY=1` を付けて実行します（Node 22.21 以上）。
 
+## 3D 表示（トップページ）
+
+`src/explorer/` が Three.js で太陽系・衛星・近くの恒星・系外惑星系・天の川銀河（イメージ）を描きます。データは `scripts/normalize/universe.ts` が作る `public/data/universe-solar.json` と `universe-stars.json`。軌道計算（`src/explorer/orbits.ts`）は JPL Horizons の位置と照合するテストがあります。
+操作テスト：`node scripts/e2e/explorer.mjs http://127.0.0.1:4321`（preview 起動中）。カード一覧は `/list/` に移しました。
+
 ## データの流れ
 
 | 段階 | 場所 | 内容 |
