@@ -1,0 +1,78 @@
+---
+import Equip from '../components/Equip.astro';
+import Base from '../layouts/Base.astro';
+import { data, url } from '../lib/data.ts';
+import { CATEGORY_JA, displayName, fmt, fmtLy, fmtTemp, HZ_JA } from '../lib/format.ts';
+import type { Body } from '../lib/types.ts';
+
+const { bodies } = data();
+const exo = bodies.filter((b) => b.category === 'exoplanet');
+const top = <T,>(arr: T[], n: number, key: (x: T) => number) => [...arr].sort((a, b) => key(a) - key(b)).slice(0, n);
+
+const esiTop = top(exo.filter((b) => b.esi != null), 30, (b) => -b.esi!);
+const hzNear = top(bodies.filter((b) => b.hz.status === 'inside' && b.slug !== 'earth'), 30, (b) => (b.system === 'solar' ? -1 : b.distanceLy.v ?? Infinity));
+const nearest = top(exo.filter((b) => b.distanceLy.v != null), 20, (b) => b.distanceLy.v!);
+const gravity = top(bodies.filter((b) => b.gravityG.v != null && b.gravityG.v > 0 && b.hasSurface === 'yes' && b.slug !== 'earth'), 20, (b) => Math.abs(Math.log(b.gravityG.v!)));
+const teq = exo.filter((b) => b.tempEqK.v != null);
+const hottest = top(teq, 10, (b) => -b.tempEqK.v!);
+const coldest = top(teq, 10, (b) => b.tempEqK.v!);
+
+const tables: { id: string; title: string; note: string; rows: Body[]; value: (b: Body) => string; bar?: (b: Body) => number }[] = [
+  { id: 'esi', title: 'ESI（地球類似性指標）が高い系外惑星', note: '恒星から受ける光の量と半径（または質量）から、PHL 方式で本サイトが計算した値。大気や地表の状態は含みません。', rows: esiTop, value: (b) => fmt(b.esi, 3), bar: (b) => b.esi! },
+  { id: 'hz', title: '保守的なハビタブルゾーン内の物件（近い順）', note: 'Kopparapu ら（2014）の保守的な範囲の内側にある物件。太陽系の天体を先頭に表示します。', rows: hzNear, value: (b) => (b.system === 'solar' ? '太陽系' : fmtLy(b.distanceLy.v)) },
+  { id: 'near', title: '地球に近い系外惑星', note: 'NASA Exoplanet Archive の距離（sy_dist）による。', rows: nearest, value: (b) => fmtLy(b.distanceLy.v) },
+  { id: 'gravity', title: '重力が地球に近い、地面のある物件', note: '重力が分かっていて、固体の地表があると判定された物件。', rows: gravity, value: (b) => `${fmt(b.gravityG.v)} 倍` },
+  { id: 'hot', title: '放射平衡温度が最も高い系外惑星', note: 'アルベド0・熱が全体に行き渡ると仮定した温度。昼側はさらに高温になりえます。', rows: hottest, value: (b) => fmtTemp(b.tempEqK.v) },
+  { id: 'cold', title: '放射平衡温度が最も低い系外惑星', note: '恒星から非常に遠い惑星などが並びます。', rows: coldest, value: (b) => fmtTemp(b.tempEqK.v) },
+];
+---
+
+<Base title="ランキング" description="ESI・ハビタブルゾーン・距離・重力・温度で並べた物件ランキング。">
+  <h1>ランキング</h1>
+  <p class="muted">生身で長く生きられる順に並べると、地球以外は「数秒〜数十秒」でほぼ横並びになります。そこで、住みやすさの手がかりになる項目ごとに並べました。</p>
+  <nav class="toc small">{tables.map((t) => <a href={`#${t.id}`}>{t.title}</a>)}</nav>
+  {tables.map((t) => (
+    <section id={t.id}>
+      <h2>{t.title}</h2>
+      <p class="small muted">{t.note}</p>
+      <div class="table-scroll card">
+        <table>
+          <thead><tr><th class="num">#</th><th>物件</th><th>値</th><th>立地</th><th>入居条件</th></tr></thead>
+          <tbody>
+            {t.rows.map((b, i) => (
+              <tr>
+                <td class="num">{i + 1}</td>
+                <td><a href={url.body(b.slug)}>{displayName(b)}</a><div class="small muted">{CATEGORY_JA[b.category]}{b.category === 'exoplanet' ? `・${fmtLy(b.distanceLy.v)}` : ''}</div></td>
+                <td class="num val">
+                  {t.bar && <span class="bar" style={`width:${Math.round(t.bar(b) * 80)}px`} aria-hidden="true"></span>}
+                  {t.value(b)}
+                </td>
+                <td class="small">{HZ_JA[b.hz.status]}</td>
+                <td><Equip eq={b.equipment} short /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .val {
+    white-space: nowrap;
+  }
+  .bar {
+    display: inline-block;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 0 4px 4px 0;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+</style>

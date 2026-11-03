@@ -1,0 +1,32 @@
+---
+/** One value with its confidence badge and footnote link to the page's source list. */
+import { CONF_JA, limPrefix } from '../lib/format.ts';
+import type { Val } from '../lib/types.ts';
+
+interface Props {
+  v: Val;
+  text: string;
+  /** footnote number for v.src */
+  fn?: number;
+}
+const { v, text, fn } = Astro.props;
+---
+
+{
+  v.c === 'unknown' || v.v == null ? (
+    <span class="muted">不明{v.note ? `（${v.note}）` : ''}{fn != null && <sup><a href={`#src-${fn}`}>[{fn}]</a></sup>}</span>
+  ) : (
+    <span>
+      <span class="num">{limPrefix(v)}{text}</span>
+      <span class="badge-conf" data-c={v.c}>{CONF_JA[v.c]}</span>
+      {fn != null && <sup><a href={`#src-${fn}`} aria-label={`出典 ${fn}`}>[{fn}]</a></sup>}
+      {v.note && <span class="small muted note">（{v.note}）</span>}
+    </span>
+  )
+}
+
+<style>
+  .note {
+    display: inline;
+  }
+</style>

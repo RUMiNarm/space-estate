@@ -1,0 +1,69 @@
+---
+import { u } from '../../lib/base.ts';
+import Base from '../../layouts/Base.astro';
+import { data, url } from '../../lib/data.ts';
+import { CATEGORY_JA, displayName } from '../../lib/format.ts';
+
+const { report, bySlug, systems } = data();
+const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'].map((s) => bySlug.get(s)!);
+const bigSystems = systems.filter((s) => s.slug !== 'solar').sort((a, b) => b.members.length - a.members.length).slice(0, 12);
+const desc: Record<string, string> = {
+  star: '比較用の太陽',
+  planet: '太陽系の8惑星',
+  dwarf: 'IAU が認める準惑星',
+  moon: 'JPL が把握しているすべての衛星',
+  small: '直径100 km以上の小惑星・大型の外縁天体・オウムアムアなど',
+  comet: '有名な彗星（恒星間彗星を含む）',
+  exoplanet: 'NASA Exoplanet Archive の確認済み惑星すべて',
+};
+---
+
+<Base title="カタログ" description="カテゴリ別の全物件一覧。">
+  <h1>カタログ</h1>
+  <div class="grid grid-3">
+    {Object.entries(report.byCategory).map(([c, n]) => (
+      <a class="card cat" href={u(`/catalog/${c}/`)}>
+        <b>{CATEGORY_JA[c as keyof typeof CATEGORY_JA]}</b>
+        <span class="num big">{n.toLocaleString('ja-JP')} 件</span>
+        <span class="small muted">{desc[c]}</span>
+      </a>
+    ))}
+  </div>
+
+  <h2>惑星ごとの衛星</h2>
+  <ul class="inline">
+    {planets.filter((p) => (report.moonCountsJpl[p.slug] ?? 0) > 0).map((p) => (
+      <li><a href={u(`/catalog/moon/?p=${p.slug}`)}>{displayName(p)}の衛星（{report.moonCountsJpl[p.slug]}）</a></li>
+    ))}
+  </ul>
+
+  <h2>惑星の多い恒星系</h2>
+  <ul class="inline">
+    <li><a href={url.system('solar')}>太陽系</a></li>
+    {bigSystems.map((s) => <li><a href={url.system(s.slug)}>{s.name}（{s.members.length}）</a></li>)}
+  </ul>
+</Base>
+
+<style>
+  .cat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .cat:hover {
+    border-color: var(--accent);
+  }
+  .big {
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .inline {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+</style>

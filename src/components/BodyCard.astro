@@ -1,0 +1,74 @@
+---
+import { CURATED } from '../data/curated.ts';
+import { url } from '../lib/data.ts';
+import { CATEGORY_JA, fmtLy, fmtTemp, HZ_JA, displayName } from '../lib/format.ts';
+import { representativeTempK } from '../lib/survival.ts';
+import type { Body } from '../lib/types.ts';
+import Equip from './Equip.astro';
+import Glyph from './Glyph.astro';
+
+interface Props {
+  body: Body;
+}
+const { body } = Astro.props;
+const c = CURATED[body.slug];
+const t = representativeTempK(body);
+---
+
+<a class="card body-card" href={url.body(body.slug)}>
+  <div class="head">
+    <Glyph body={body} size={56} />
+    <div>
+      <div class="name">{displayName(body)}</div>
+      <div class="small muted">{body.nameJa ? `${body.name}・` : ''}{CATEGORY_JA[body.category]}{body.parentName ? `（${body.parentName}）` : ''}</div>
+    </div>
+  </div>
+  {c && <p class="catch">{c.catchphrase}</p>}
+  <dl class="facts small">
+    <dt>入居条件</dt><dd><Equip eq={body.equipment} short /></dd>
+    <dt>代表温度</dt><dd class="num">{fmtTemp(t)}</dd>
+    <dt>立地</dt><dd>{body.category === 'star' ? '—' : HZ_JA[body.hz.status]}</dd>
+    {body.distanceLy.v != null && body.system !== 'solar' && (<><dt>距離</dt><dd class="num">{fmtLy(body.distanceLy.v)}</dd></>)}
+  </dl>
+</a>
+
+<style>
+  .body-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+  .body-card:hover {
+    border-color: var(--accent);
+  }
+  .head {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .name {
+    font-weight: 700;
+    font-size: 1.08rem;
+    line-height: 1.3;
+  }
+  .catch {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 12px;
+    margin: 0;
+  }
+  dt {
+    color: var(--ink-2);
+  }
+  dd {
+    margin: 0;
+  }
+</style>

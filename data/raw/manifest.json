@@ -1,0 +1,226 @@
+{
+  "fetchedAt": "2026-11-01T17:13:50.253Z",
+  "files": [
+    {
+      "path": "nssdc/index.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/"
+    },
+    {
+      "path": "nssdc/sunfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html"
+    },
+    {
+      "path": "nssdc/mercuryfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html"
+    },
+    {
+      "path": "nssdc/venusfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html"
+    },
+    {
+      "path": "nssdc/earthfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html"
+    },
+    {
+      "path": "nssdc/moonfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html"
+    },
+    {
+      "path": "nssdc/marsfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html"
+    },
+    {
+      "path": "nssdc/jupiterfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupiterfact.html"
+    },
+    {
+      "path": "nssdc/saturnfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html"
+    },
+    {
+      "path": "nssdc/uranusfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranusfact.html"
+    },
+    {
+      "path": "nssdc/neptunefact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/neptunefact.html"
+    },
+    {
+      "path": "nssdc/plutofact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/plutofact.html"
+    },
+    {
+      "path": "nssdc/joviansatfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html"
+    },
+    {
+      "path": "nssdc/saturniansatfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturniansatfact.html"
+    },
+    {
+      "path": "nssdc/uraniansatfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uraniansatfact.html"
+    },
+    {
+      "path": "nssdc/neptuniansatfact.html",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/neptuniansatfact.html"
+    },
+    {
+      "path": "jpl-sats/discovery.html",
+      "url": "https://ssd.jpl.nasa.gov/sats/discovery.html"
+    },
+    {
+      "path": "jpl-sats/phys_par.html",
+      "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+    },
+    {
+      "path": "jpl-sats/elem.html",
+      "url": "https://ssd.jpl.nasa.gov/sats/elem/"
+    },
+    {
+      "path": "sbdb/query-diameter-ge-100.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,pdes,name,prefix,kind,class,diameter,extent,albedo,rot_per,GM,density,a,e,i,q,ad,per_y,H,first_obs&sb-cdata=%7B%22AND%22%3A%5B%22diameter%7CGE%7C100%22%5D%7D"
+    },
+    {
+      "path": "sbdb/query-tno-bright.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,pdes,name,prefix,kind,class,diameter,extent,albedo,rot_per,GM,density,a,e,i,q,ad,per_y,H,first_obs&sb-cdata=%7B%22AND%22%3A%5B%22class%7CEQ%7CTNO%22%2C%22H%7CLE%7C4.5%22%5D%7D"
+    },
+    {
+      "path": "sbdb/objects/1.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=1&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/134340.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=134340&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/136199.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=136199&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/136472.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=136472&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/136108.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=136108&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/90377.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=90377&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/50000.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=50000&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/225088.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=225088&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/90482.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=90482&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/120347.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=120347&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/28978.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=28978&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/20000.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=20000&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/1P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=1P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/2P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=2P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/9P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=9P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/19P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=19P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/67P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=67P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/81P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=81P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/103P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=103P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/109P.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/C_1995_O1.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C%2F1995%20O1&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/C_2020_F3.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C%2F2020%20F3&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/1I.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=1I&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/2I.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=2I&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/3I.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3I&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/4.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=4&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/2.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=2&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/10.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=10&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/433.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=433&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/101955.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=101955&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/162173.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=162173&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/99942.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=99942&phys-par=1&discovery=1"
+    },
+    {
+      "path": "sbdb/objects/16.json",
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=16&phys-par=1&discovery=1"
+    },
+    {
+      "path": "exoplanet-archive/pscomppars.csv",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select%20pl_name%2Chostname%2Cpl_letter%2Csy_snum%2Csy_pnum%2Csy_mnum%2Csy_dist%2Csy_dist_reflink%2Cdisc_year%2Cdiscoverymethod%2Cdisc_facility%2Cdisc_refname%2Cpl_controv_flag%2Ctran_flag%2Crv_flag%2Cpl_orbper%2Cpl_orbperlim%2Cpl_orbper_reflink%2Cpl_orbsmax%2Cpl_orbsmaxlim%2Cpl_orbsmax_reflink%2Cpl_rade%2Cpl_radelim%2Cpl_radeerr1%2Cpl_radeerr2%2Cpl_rade_reflink%2Cpl_bmasse%2Cpl_bmasselim%2Cpl_bmassprov%2Cpl_bmasse_reflink%2Cpl_dens%2Cpl_dens_reflink%2Cpl_orbeccen%2Cpl_orbeccenlim%2Cpl_orbeccen_reflink%2Cpl_insol%2Cpl_insollim%2Cpl_insol_reflink%2Cpl_eqt%2Cpl_eqtlim%2Cpl_eqt_reflink%2Cpl_orbincl%2Cpl_trueobliq%2Cst_spectype%2Cst_teff%2Cst_teff_reflink%2Cst_rad%2Cst_mass%2Cst_lum%2Cst_lum_reflink%2Cst_age%2Cst_met%2Cpl_nobs_jwst_tran%2Cpl_nobs_jwst_e%2Cpl_nobs_jwst_pc%2Cpl_ntranspec%20from%20pscomppars&format=csv"
+    }
+  ],
+  "date": "2026-11-01"
+}

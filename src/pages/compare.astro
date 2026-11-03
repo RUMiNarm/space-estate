@@ -1,0 +1,10 @@
+---
+import Compare from '../components/islands/Compare.tsx';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="物件を比較" description="最大4つの天体の大きさ・重力・温度・ESI・距離を並べて比べます。">
+  <h1>物件を比較</h1>
+  <p class="muted">最大4件を並べて比べられます。グラフは項目ごとに分けて描き、値の幅が大きい項目は対数目盛にしています。</p>
+  <Compare client:load />
+</Base>

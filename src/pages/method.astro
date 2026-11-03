@@ -1,0 +1,126 @@
+---
+import { u } from '../lib/base.ts';
+import Equip from '../components/Equip.astro';
+import { FACTCHECK } from '../data/factcheck.ts';
+import Base from '../layouts/Base.astro';
+import { EBULLISM_BAR, METHOD_SOURCES } from '../lib/constants.ts';
+import { data, url } from '../lib/data.ts';
+import { CATEGORY_JA, fmt } from '../lib/format.ts';
+import { EXTREME_HEAT_K, HEAT_LETHAL_K } from '../lib/survival.ts';
+
+const { report, sources } = data();
+const db = Object.values(sources).filter((s) => s.kind === 'database' || s.kind === 'factsheet').filter((s) => !s.id.startsWith('sbdb:'));
+const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
+---
+
+<Base title="判定方法と出典" description="データの取得元、判定ルール、計算式、動画のファクトチェック。">
+  <h1>判定方法と出典</h1>
+  <nav class="toc small"><a href="#data">データ</a><a href="#survival">生存時間</a><a href="#equipment">装備レベル</a><a href="#formulas">計算式</a><a href="#factcheck">ファクトチェック</a><a href="#sources">出典一覧</a></nav>
+
+  <section id="data">
+    <h2>データ</h2>
+    <p>{report.fetchedAt.slice(0, 10)} に一次ソースから取得したスナップショットを正規化しています（正規化 {report.normalizedAt.slice(0, 10)}）。</p>
+    <div class="table-scroll card">
+      <table>
+        <thead><tr><th>カテゴリ</th><th class="num">件数</th><th>取得元</th></tr></thead>
+        <tbody>
+          <tr><td>{CATEGORY_JA.star}・{CATEGORY_JA.planet}</td><td class="num">{(report.byCategory.star ?? 0) + (report.byCategory.planet ?? 0)}</td><td>NASA NSSDC Planetary Fact Sheets（比較表と各天体のファクトシート）</td></tr>
+          <tr><td>{CATEGORY_JA.moon}</td><td class="num">{report.byCategory.moon}</td><td>JPL SSD（発見状況・平均軌道要素・物理量）、NASA 衛星ファクトシート。月は NASA Moon Fact Sheet</td></tr>
+          <tr><td>{CATEGORY_JA.dwarf}・{CATEGORY_JA.small}・{CATEGORY_JA.comet}</td><td class="num">{(report.byCategory.dwarf ?? 0) + (report.byCategory.small ?? 0) + (report.byCategory.comet ?? 0)}</td><td>JPL Small-Body Database API（直径100 km以上、明るい外縁天体、個別に選んだ天体）。冥王星は NASA Pluto Fact Sheet</td></tr>
+          <tr><td>{CATEGORY_JA.exoplanet}</td><td class="num">{report.byCategory.exoplanet}</td><td>NASA Exoplanet Archive「Planetary Systems Composite Parameters」の全件（{report.systems - 1} 恒星系）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">衛星の数は JPL SSD の発見状況一覧の数（{Object.entries(report.moonCountsJpl).map(([k, v]) => `${k} ${v}`).join('、')}）と一致することをテストで確認しています。出典のない値は表示せず「不明」としています。</p>
+  </section>
+
+  <section id="survival">
+    <h2>生身で放り出されたときの判定</h2>
+    <p>上から順に調べ、最初に当てはまった要因を採用します。</p>
+    <ol>
+      <li>恒星 → 蒸発</li>
+      <li>代表的な温度が {fmt(EXTREME_HEAT_K - 273.15, 0)}°C 以上 → 即死（高温）</li>
+      <li>地面がない → 酸素のない大気に沈み、十数秒〜数十秒で意識を失う</li>
+      <li>代表的な温度が {fmt(HEAT_LETHAL_K - 273.15, 0)}°C 以上 → 数秒（高温）</li>
+      <li>気圧が {fmt(EBULLISM_BAR, 4)} bar（47 mmHg）未満、または大気がほぼない → 約9〜10秒で意識を失う（NASA SP-3006、NTRS 19660005052）</li>
+      <li>大気の有無が分からない → 約10〜60秒</li>
+      <li>呼吸できる酸素がない → 十数秒〜数十秒</li>
+    </ol>
+    <p class="small muted">「代表的な温度」は、最高気温 → 平均気温 → 放射平衡温度の順に、分かっている値を使います。150°C・1,000°C のしきい値は本サイトが決めた分類用の値です。</p>
+  </section>
+
+  <section id="equipment">
+    <h2>装備レベルの判定（本サイトの分類ルール）</h2>
+    <div class="table-scroll card">
+      <table>
+        <thead><tr><th>レベル</th><th>条件（上から順に判定）</th></tr></thead>
+        <tbody>
+          <tr><td><Equip eq={{ level: 4, minLevel: 4 }} /></td><td>恒星／代表温度1,000°C以上／地面がない／気圧10 bar以上かつ500 K以上</td></tr>
+          <tr><td><Equip eq={{ level: null, minLevel: 2 }} /></td><td>大気または地表の状態が分からない（少なくとも Lv2 は必要）</td></tr>
+          <tr><td><Equip eq={{ level: 3, minLevel: 3 }} /></td><td>強い放射線（出典つきで指定した天体）／代表温度300°C以上／気圧5 bar超</td></tr>
+          <tr><td><Equip eq={{ level: 1, minLevel: 1 }} /></td><td>厚い大気があり、気圧0.5〜5 bar、ただし呼吸できる酸素がない</td></tr>
+          <tr><td><Equip eq={{ level: 2, minLevel: 2 }} /></td><td>上のどれにも当てはまらない（気圧がほとんどない）</td></tr>
+          <tr><td><Equip eq={{ level: 0, minLevel: 0 }} /></td><td>地球</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">系外惑星の平均密度が 0.05〜30 g/cm³ の範囲を外れる場合は、アーカイブの質量か半径に問題がある可能性があるため、物件ページに「データに要注意」と表示し、岩石・地表の判定を「不明」にします。離心率が1.1を超える小天体（双曲線軌道）は恒星間天体として扱います。主星の明るさがない場合は、半径と有効温度から L = R²(T/5,772 K)⁴ で、軌道長半径がない場合は公転周期と主星の質量からケプラーの第3法則（a³ = M P²）で計算します。</p>
+    <p class="small muted">太陽系の衛星は、NASA の「厚い大気を持つ衛星はタイタンだけ」という記述に基づき、タイタン以外を「ほぼ真空」として扱っています。小天体・彗星も、体液が沸騰する気圧に達する大気は観測されていないため同様に扱います。</p>
+  </section>
+
+  <section id="formulas">
+    <h2>計算式</h2>
+    <ul>
+      <li><b>ハビタブルゾーン</b>：S<sub>eff</sub> = S<sub>eff☉</sub> + aT + bT² + cT³ + dT⁴（T = T<sub>eff</sub> − 5780 K）、d = √(L / S<sub>eff</sub>) au。係数は Kopparapu ら（2014）Table 1（1地球質量）。適用範囲は T<sub>eff</sub> 2,600〜7,200 K。範囲から400 K以内は端の値で計算し「参考値」と表示します。</li>
+      <li><b>放射平衡温度</b>：T<sub>eq</sub> = T<sub>eff</sub> √(R<sub>★</sub>/a) (1/4)<sup>1/4</sup>（NASA Exoplanet Archive と同じ式。アルベド0）</li>
+      <li><b>受け取る光の量</b>：S/S<sub>⊕</sub> = (L/L<sub>☉</sub>)(1 au / a)²</li>
+      <li><b>ESI</b>：1 − √(½[((S−1)/(S+1))² + ((R−1)/(R+1))²])（PHL 方式）</li>
+      <li><b>表面重力</b>：M / R²（地球単位）。GM が分かっている天体は GM / R² ÷ 9.80665 m/s²。太陽系の惑星・月・冥王星は各ファクトシートの地球比の値</li>
+      <li><b>岩石惑星の判定</b>：半径の実測値 ≦ 1.6（Rogers 2015）、なければ質量 ≦ 2.0（Chen &amp; Kipping 2017）</li>
+    </ul>
+  </section>
+
+  <section id="factcheck">
+    <h2>参考動画のファクトチェック</h2>
+    <p class="muted">企画の参考にした ゆる天文学ラジオ「移住マイスター」シリーズ3本の内容を、2026-11-01 に一次ソースで照合しました。</p>
+    <div class="table-scroll card">
+      <table>
+        <thead><tr><th>回</th><th>動画での内容</th><th>一次ソースでの照合結果</th><th>判定</th></tr></thead>
+        <tbody>
+          {FACTCHECK.map((f) => (
+            <tr>
+              <td class="small nowrap">{f.video}</td>
+              <td>{f.slug ? <a href={url.body(f.slug)}>{f.claim}</a> : f.claim}</td>
+              <td class="small">{f.result}</td>
+              <td class="nowrap"><span class={`tag ${f.verdict === '正しい' || f.verdict === 'ほぼ正しい' ? 'accent' : ''}`}>{f.verdict}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sources">
+    <h2>出典一覧</h2>
+    <h3>判定・計算の根拠</h3>
+    <ul class="small">{Object.entries(METHOD_SOURCES).map(([, s]) => <li><a href={u(s.url)} rel="noopener">{s.label}</a></li>)}</ul>
+    <h3>データベース・ファクトシート</h3>
+    <ul class="small">{db.map((s) => <li><a href={u(s.url)} rel="noopener">{s.label}</a></li>)}</ul>
+    <p class="small muted">このほか、系外惑星の各値の出典として {papers.toLocaleString('ja-JP')} 件の論文などを各物件ページに表示しています。小天体は JPL Small-Body Database の各天体ページを出典としています。</p>
+  </section>
+</Base>
+
+<style>
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .nowrap {
+    white-space: nowrap;
+  }
+  ol li,
+  ul li {
+    margin-bottom: 4px;
+  }
+</style>

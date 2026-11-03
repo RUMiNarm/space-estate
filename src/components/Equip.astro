@@ -1,0 +1,24 @@
+---
+import { EQUIP } from '../lib/format.ts';
+import type { Equipment } from '../lib/types.ts';
+interface Props {
+  eq: Pick<Equipment, 'level' | 'minLevel'>;
+  short?: boolean;
+}
+const { eq, short = false } = Astro.props;
+const e = EQUIP[eq.level ?? 'null'];
+---
+
+<span class="lv" title={e.label}>
+  <span class="lv-dot" style={`background:${e.color}`} aria-hidden="true"></span>
+  <span aria-hidden="true" class="lv-icon">{e.icon}</span>
+  <span>{short ? e.short : e.label}</span>
+  {eq.level == null && !short && <span class="small muted">（少なくとも Lv{eq.minLevel}）</span>}
+</span>
+
+<style>
+  .lv-icon {
+    font-size: 0.8em;
+    color: var(--ink-2);
+  }
+</style>

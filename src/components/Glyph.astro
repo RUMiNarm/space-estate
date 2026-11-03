@@ -1,0 +1,57 @@
+---
+/**
+ * Data-driven schematic of a body (not a photograph): colour from category and temperature.
+ * Size is not to scale.
+ */
+import type { Body } from '../lib/types.ts';
+import { representativeTempK } from '../lib/survival.ts';
+
+interface Props {
+  body: Pick<Body, 'category' | 'rocky' | 'hasSurface' | 'tempMeanK' | 'tempMaxK' | 'tempEqK' | 'rings' | 'slug'> & { host?: Body['host'] };
+  size?: number;
+}
+const { body, size = 64 } = Astro.props;
+const t = representativeTempK(body);
+const id = `g-${body.slug}`.replace(/[^a-z0-9-]/gi, '');
+
+function palette(): [string, string, boolean] {
+  if (body.category === 'star') return ['#fff3c4', '#f2a900', false];
+  if (body.slug === 'earth') return ['#7fc3ff', '#1c5cab', false];
+  if (t != null && t >= 1273) return ['#ffd27a', '#c2410c', false];
+  if (t != null && t >= 423) return ['#f5b38c', '#a4462a', false];
+  const gas = body.hasSurface === 'no' || body.rocky === 'no' || body.rocky === 'unlikely';
+  if (gas) return t != null && t < 120 ? ['#c9ecf5', '#3c8fb0', true] : ['#f1dcb4', '#a77b4a', true];
+  if (body.category === 'comet' || body.category === 'small') return ['#d6d3cc', '#6f6a62', false];
+  if (t != null && t < 150) return ['#eef4f7', '#8aa3b3', false];
+  if (body.rocky === 'unknown') return ['#d9d9d9', '#7a7a7a', false];
+  return ['#e0c3a8', '#8c5a3c', false];
+}
+const [c1, c2, bands] = palette();
+const glow = body.category === 'star' || (t != null && t >= 1273);
+---
+
+<svg class="glyph" width={size} height={size} viewBox="0 0 100 100" role="img" aria-label="データからの模式図（実際の画像ではありません）">
+  <defs>
+    <radialGradient id={id} cx="35%" cy="32%" r="75%">
+      <stop offset="0%" stop-color={c1}></stop>
+      <stop offset="100%" stop-color={c2}></stop>
+    </radialGradient>
+  </defs>
+  {glow && <circle cx="50" cy="50" r="46" fill={c1} opacity="0.25"></circle>}
+  <circle cx="50" cy="50" r="36" fill={`url(#${id})`}></circle>
+  {bands && (
+    <g opacity="0.25" stroke={c2} stroke-width="4">
+      <line x1="16" y1="40" x2="84" y2="40"></line>
+      <line x1="15" y1="54" x2="85" y2="54"></line>
+      <line x1="20" y1="66" x2="80" y2="66"></line>
+    </g>
+  )}
+  {body.rings && <ellipse cx="50" cy="52" rx="48" ry="12" fill="none" stroke={c2} stroke-width="3" opacity="0.7" transform="rotate(-15 50 50)"></ellipse>}
+</svg>
+
+<style>
+  .glyph {
+    flex: none;
+    display: block;
+  }
+</style>

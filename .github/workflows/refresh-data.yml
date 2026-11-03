@@ -1,0 +1,30 @@
+name: Refresh data from primary sources
+on:
+  schedule:
+    - cron: '17 3 2 * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run data:fetch
+      - run: pnpm run data:normalize
+      - run: pnpm test
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: data-refresh
+          title: 'Refresh data from primary sources'
+          body: 'Automated monthly snapshot of NASA / JPL / Exoplanet Archive data. Review data/normalized/report.json for count changes and re-check curated text if values moved.'
+          commit-message: 'Refresh data from primary sources'

@@ -1,0 +1,32 @@
+{
+  "name": "space-estate",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "data:fetch": "NODE_USE_ENV_PROXY=1 tsx scripts/fetch/all.ts",
+    "data:normalize": "tsx scripts/normalize/index.ts",
+    "data": "pnpm run data:fetch && pnpm run data:normalize"
+  },
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "dependencies": {
+    "@astrojs/preact": "6.1.0",
+    "astro": "7.4.0",
+    "preact": "11.0.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5",
+    "zod": "4.6.7"
+  }
+}

@@ -1,0 +1,18 @@
+---
+import Search from '../../components/islands/Search.tsx';
+import Base from '../../layouts/Base.astro';
+import { data } from '../../lib/data.ts';
+import { CATEGORY_JA } from '../../lib/format.ts';
+import type { Category } from '../../lib/types.ts';
+
+export function getStaticPaths() {
+  return Object.keys(data().report.byCategory).map((c) => ({ params: { category: c } }));
+}
+const category = Astro.params.category as Category;
+const n = data().report.byCategory[category] ?? 0;
+---
+
+<Base title={`${CATEGORY_JA[category]}のカタログ`} description={`${CATEGORY_JA[category]} ${n}件の一覧。`}>
+  <h1>{CATEGORY_JA[category]}のカタログ（{n.toLocaleString('ja-JP')} 件）</h1>
+  <Search client:load preset={{ cats: [category] }} />
+</Base>

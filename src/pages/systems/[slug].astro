@@ -1,0 +1,76 @@
+---
+import { u } from '../../lib/base.ts';
+import Equip from '../../components/Equip.astro';
+import HzDiagram from '../../components/HzDiagram.astro';
+import Base from '../../layouts/Base.astro';
+import { data, url } from '../../lib/data.ts';
+import { CATEGORY_JA, displayName, fmt, fmtLy, fmtTemp, HZ_JA } from '../../lib/format.ts';
+import { representativeTempK } from '../../lib/survival.ts';
+
+export function getStaticPaths() {
+  return data().systems.map((s) => ({ params: { slug: s.slug } }));
+}
+const { slug } = Astro.params;
+const { sysBySlug, bySlug, sources } = data();
+const sys = sysBySlug.get(slug!)!;
+const isSolar = sys.slug === 'solar';
+let members = sys.members.map((m) => bySlug.get(m)!).filter(Boolean);
+if (isSolar) members = members.filter((m) => m.category === 'planet' || m.category === 'dwarf');
+const plotted = members.filter((m) => m.category !== 'star');
+const host = sys.host;
+const title = isSolar ? '太陽系' : `${sys.name} 系`;
+const hostParts = host
+  ? [
+      host.spectralType ? `スペクトル型 ${host.spectralType}` : null,
+      host.teffK.v != null ? `有効温度 ${fmt(host.teffK.v, 0)} K` : null,
+      host.radiusSun.v != null ? `半径 太陽の ${fmt(host.radiusSun.v)} 倍` : null,
+      host.lumLogSun.v != null ? `明るさ 太陽の ${fmt(10 ** host.lumLogSun.v)} 倍${host.lumLogSun.c === 'derived' ? '（半径と温度から計算）' : ''}` : null,
+    ].filter(Boolean)
+  : [];
+const srcIds = new Set<string>(isSolar ? ['nssdc-planets', 'kopparapu2014'] : ['nea', 'kopparapu2014']);
+for (const m of members) for (const v of [m.aAU, m.radiusE, m.tempMaxK, m.tempMeanK, m.tempEqK]) if (v.src && sources[v.src]) srcIds.add(v.src);
+if (host) for (const v of [host.teffK, host.radiusSun, host.lumLogSun]) if (v.src && sources[v.src]) srcIds.add(v.src);
+---
+
+<Base title={title} description={`${title}の物件一覧とハビタブルゾーンの位置。`}>
+  <nav class="small muted"><a href={u('/')}>トップ</a> › <a href={u('/catalog/')}>カタログ</a> › {title}</nav>
+  <h1>{title}</h1>
+  <p class="lead">
+    {isSolar
+      ? `太陽のまわりの惑星と準惑星です。太陽系の衛星・小天体は${CATEGORY_JA.moon}・${CATEGORY_JA.small}のカタログから見られます。`
+      : `${sys.name} のまわりで確認されている惑星 ${members.length} 個${sys.distanceLy != null ? `。地球から ${fmtLy(sys.distanceLy)}` : ''}。`}
+  </p>
+  {host && <p class="small muted">主星：{hostParts.length ? hostParts.join('・') : '温度・半径・明るさは不明'}{hostParts.length > 0 && hostParts.length < 4 ? '（その他は不明）' : ''}</p>}
+
+  <HzDiagram bodies={plotted} hz={{ inner: sys.hzInnerAU, outer: sys.hzOuterAU, optInner: plotted.find((p) => p.hz.optInnerAU != null)?.hz.optInnerAU ?? null, optOuter: plotted.find((p) => p.hz.optOuterAU != null)?.hz.optOuterAU ?? null }} />
+  {sys.hzInnerAU == null && !isSolar && <p class="small muted">主星の温度・明るさが分からないか、モデルの適用範囲外のため、ハビタブルゾーンを描けません。</p>}
+
+  <h2>物件一覧</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>物件</th><th>恒星からの距離</th><th>半径（地球=1）</th><th>代表温度</th><th>立地</th><th>入居条件</th></tr></thead>
+      <tbody>
+        {members.map((m) => (
+          <tr>
+            <td><a href={url.body(m.slug)}>{displayName(m)}</a>{m.nameJa && m.nameJa !== m.name && <div class="small muted">{m.name}</div>}</td>
+            <td class="num">{m.aAU.v != null ? `${fmt(m.aAU.v)} au` : '不明'}</td>
+            <td class="num">{m.radiusE.v != null ? `${fmt(m.radiusE.v)}${m.radiusE.c === 'calculated' ? '（計算値）' : ''}` : '不明'}</td>
+            <td class="num">{fmtTemp(representativeTempK(m))}</td>
+            <td>{m.category === 'star' ? '—' : HZ_JA[m.hz.status]}</td>
+            <td><Equip eq={m.equipment} short /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  {sys.overviewUrl && <p class="small"><a href={sys.overviewUrl} rel="noopener">NASA Exoplanet Archive の {sys.name} の概要ページ</a></p>}
+  <h2>出典</h2>
+  <ul class="small">{[...srcIds].map((id) => <li><a href={u(sources[id]!.url)} rel="noopener">{sources[id]!.label}</a></li>)}</ul>
+  <p class="small muted">各値の出典の詳細は、それぞれの物件ページに記載しています。</p>
+</Base>
+
+<style>
+  .lead {
+    font-size: 1.05rem;
+  }
+</style>

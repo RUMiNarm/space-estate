@@ -1,0 +1,104 @@
+---
+/**
+ * Orbit-distance strip: planets placed by semi-major axis on a log scale, with the
+ * conservative and optimistic habitable zones as background bands. Single series; every
+ * planet is direct-labelled and the members table on the page is the table view.
+ */
+import { url } from '../lib/data.ts';
+import { displayName, fmt, HZ_JA } from '../lib/format.ts';
+import type { Body } from '../lib/types.ts';
+
+interface Props {
+  bodies: Body[];
+  hz: { inner: number | null; outer: number | null; optInner: number | null; optOuter: number | null };
+}
+const { bodies, hz } = Astro.props;
+const pts = bodies.filter((b) => b.aAU.v != null && b.aAU.v > 0).sort((a, z) => a.aAU.v! - z.aAU.v!);
+const W = 900;
+const H = 150;
+const padX = 24;
+const xs = [...pts.map((p) => p.aAU.v!), hz.optInner, hz.optOuter].filter((x): x is number => x != null && x > 0);
+const lo = Math.log10(Math.min(...xs) / 1.6);
+const hi = Math.log10(Math.max(...xs) * 1.6);
+const x = (a: number) => padX + ((Math.log10(a) - lo) / (hi - lo)) * (W - 2 * padX);
+const ticks: number[] = [];
+for (let e = Math.floor(lo); e <= Math.ceil(hi); e++) for (const m of [1, 2, 5]) {
+  const v = m * 10 ** e;
+  if (Math.log10(v) >= lo && Math.log10(v) <= hi) ticks.push(v);
+}
+const r = (b: Body) => {
+  const rad = b.radiusE.v;
+  return rad == null ? 5 : Math.max(4, Math.min(14, 5 * Math.sqrt(rad)));
+};
+const axisY = 112;
+---
+
+{pts.length > 0 && (
+  <figure class="hzd">
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="恒星からの距離とハビタブルゾーン（対数目盛）">
+      {hz.optInner != null && hz.optOuter != null && (
+        <rect x={x(hz.optInner)} y="18" width={x(hz.optOuter) - x(hz.optInner)} height={axisY - 18} fill="var(--hz-opt)" rx="4"><title>楽観的なハビタブルゾーン {fmt(hz.optInner)}〜{fmt(hz.optOuter)} au</title></rect>
+      )}
+      {hz.inner != null && hz.outer != null && (
+        <rect x={x(hz.inner)} y="18" width={x(hz.outer) - x(hz.inner)} height={axisY - 18} fill="var(--hz-cons)" rx="4"><title>保守的なハビタブルゾーン {fmt(hz.inner)}〜{fmt(hz.outer)} au</title></rect>
+      )}
+      <line x1={padX} x2={W - padX} y1={axisY} y2={axisY} stroke="var(--axis)" stroke-width="1"></line>
+      {ticks.map((t) => (
+        <g>
+          <line x1={x(t)} x2={x(t)} y1={axisY} y2={axisY + 5} stroke="var(--axis)"></line>
+          <text x={x(t)} y={axisY + 20} text-anchor="middle" font-size="12" fill="var(--muted)">{fmt(t)}</text>
+        </g>
+      ))}
+      <text x={W - padX} y={H - 4} text-anchor="end" font-size="12" fill="var(--muted)">恒星からの距離（au、対数目盛）</text>
+      {pts.map((p, i) => (
+        <a href={url.body(p.slug)}>
+          <g class="pt">
+            <circle cx={x(p.aAU.v!)} cy="66" r={r(p) + 8} fill="transparent"></circle>
+            <circle cx={x(p.aAU.v!)} cy="66" r={r(p)} fill="var(--accent)" stroke="var(--surface)" stroke-width="2"></circle>
+            <text x={x(p.aAU.v!)} y={i % 2 === 0 ? 66 - r(p) - 8 : 66 + r(p) + 16} text-anchor="middle" font-size="12" fill="var(--ink)">{p.category === 'exoplanet' ? p.name.split(' ').at(-1) : displayName(p)}</text>
+            <title>{displayName(p)}：{fmt(p.aAU.v!)} au・{HZ_JA[p.hz.status]}</title>
+          </g>
+        </a>
+      ))}
+    </svg>
+    <figcaption class="small muted">
+      {hz.inner != null && <><span class="key" style="background:var(--hz-cons)"></span>保守的なハビタブルゾーン</>}
+      {hz.optInner != null && <><span class="key" style="background:var(--hz-opt)"></span>楽観的なハビタブルゾーン</>}
+      <span class="key dot" style="background:var(--accent)"></span>惑星（大きさは半径に応じて変化・縮尺は正確ではありません）
+    </figcaption>
+  </figure>
+)}
+
+<style>
+  .hzd {
+    margin: 16px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .pt:hover circle:nth-child(2),
+  a:focus-visible .pt circle:nth-child(2) {
+    stroke: var(--ink);
+  }
+  .key {
+    display: inline-block;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    margin: 0 4px 0 12px;
+    vertical-align: middle;
+  }
+  .key:first-child {
+    margin-left: 0;
+  }
+  .key.dot {
+    width: 10px;
+    border-radius: 50%;
+  }
+</style>

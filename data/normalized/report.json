@@ -1,0 +1,30 @@
+{
+  "fetchedAt": "2026-11-01T17:13:50.253Z",
+  "normalizedAt": "2026-11-01T17:59:46.550Z",
+  "total": 7246,
+  "byCategory": {
+    "star": 1,
+    "planet": 8,
+    "dwarf": 5,
+    "moon": 461,
+    "small": 308,
+    "comet": 12,
+    "exoplanet": 6451
+  },
+  "systems": 4848,
+  "moonCountsJpl": {
+    "mars": 2,
+    "jupiter": 115,
+    "saturn": 293,
+    "uranus": 29,
+    "neptune": 16,
+    "pluto": 5,
+    "earth": 1
+  },
+  "equipmentUndetermined": 3537,
+  "hzInside": 197,
+  "hzUnknown": 376,
+  "esiAvailable": 6413,
+  "curated": 50,
+  "sources": 2150
+}
