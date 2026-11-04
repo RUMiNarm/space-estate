@@ -18,8 +18,8 @@ const check = (c, m) => {
 };
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 
-async function open(viewport, hash = '') {
-  const ctx = await browser.newContext({ viewport, colorScheme: 'dark' });
+async function open(viewport, hash = '', touch = false) {
+  const ctx = await browser.newContext({ viewport, colorScheme: 'dark', ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -40,23 +40,23 @@ async function urlBecomes(page, re, ms = 8000) {
   return re.test(page.url());
 }
 /** Fire wheel events at a realistic rate (one gesture) from inside the page. */
-async function wheel(page, deltaY, count) {
+async function wheel(page, deltaY, count, at = null) {
   await page.waitForFunction(() => !window.__explorer.debug().busy, null, { timeout: 15000 });
   await page.waitForTimeout(500);
   await page.evaluate(
-    ([dy, n]) =>
+    ([dy, n, p]) =>
       new Promise((res) => {
         const c = document.querySelector('#stage canvas');
         let k = 0;
         const t = setInterval(() => {
-          c.dispatchEvent(new WheelEvent('wheel', { deltaY: dy, clientX: innerWidth / 2, clientY: innerHeight / 2, bubbles: true, cancelable: true }));
+          c.dispatchEvent(new WheelEvent('wheel', { deltaY: dy, clientX: p ? p.x : innerWidth / 2, clientY: p ? p.y : innerHeight / 2, bubbles: true, cancelable: true }));
           if (++k >= n) {
             clearInterval(t);
             res();
           }
         }, 16);
       }),
-    [deltaY, count],
+    [deltaY, count, at],
   );
 }
 async function clickKey(page, key, dx = 0, dy = 0) {
@@ -92,10 +92,18 @@ async function clickKey(page, key, dx = 0, dy = 0) {
   await page.goto(`${base}/`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__explorer);
   await page.waitForTimeout(2200);
+  // wheel at Jupiter zooms into Jupiter, not the Sun
+  await wheel(page, -120, 40, await at(page, 'jupiter'));
+  await page.waitForTimeout(1600);
+  d = await dbg(page);
+  check(d.level === 'planet' && d.focus === 'jupiter', `scrolling at Jupiter zooms into Jupiter (${d.level}/${d.focus})`);
+  await page.locator('#back').click();
+  await page.waitForTimeout(1800);
+
   await wheel(page, 200, 90);
   await page.waitForTimeout(1600);
   d = await dbg(page);
-  check(d.level === 'stars', `scrolling out leaves the solar system (${d.level})`);
+  check(d.level === 'stars', `scrolling out leaves the solar system (${d.level}, dist ${d.dist.toFixed(1)})`);
   if (shots) await page.screenshot({ path: `${shots}/explorer-stars.png` });
 
   await page.waitForTimeout(400);
@@ -123,17 +131,68 @@ async function clickKey(page, key, dx = 0, dy = 0) {
   await ctx.close();
 }
 
-// ---- mobile
+// ---- phone (touch input)
+async function tapKey(page, key) {
+  await page.waitForFunction(() => !window.__explorer.debug().busy, null, { timeout: 15000 });
+  const p = await at(page, key);
+  if (!p) return false;
+  await page.touchscreen.tap(p.x, p.y);
+  return true;
+}
+/** Vertical two-finger pinch around (x, y) from `from` px to `to` px finger spacing, via CDP touch events. */
+async function pinch(page, x, y, from, to, steps = 14) {
+  const cdp = await page.context().newCDPSession(page);
+  const pts = (d) => [{ x, y: y - d / 2, id: 1 }, { x, y: y + d / 2, id: 2 }];
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pts(from) });
+  for (let k = 1; k <= steps; k++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: pts(from + ((to - from) * k) / steps) });
+    await page.waitForTimeout(30);
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+}
 {
-  const { ctx, page, errors } = await open({ width: 375, height: 760 });
+  const { ctx, page, errors } = await open({ width: 375, height: 760 }, '', true);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-  check(overflow <= 1, `no horizontal overflow on mobile (${overflow})`);
-  await clickKey(page, 'saturn-halo', -20, 6);
+  check(overflow <= 1, `no horizontal overflow on a phone (${overflow})`);
+
+  await tapKey(page, 'jupiter');
   await page.waitForTimeout(1800);
-  const d = await dbg(page);
-  check(d.level === 'planet' && d.focus === 'saturn', `tap around Saturn zooms in on mobile (${d.focus})`);
-  if (shots) await page.screenshot({ path: `${shots}/explorer-mobile-saturn.png` });
-  check(errors.length === 0, `no console errors on mobile ${errors.slice(0, 3).join(' | ')}`);
+  let d = await dbg(page);
+  check(d.level === 'planet' && d.focus === 'jupiter', `tapping Jupiter flies to it instead of opening it (${d.level}/${d.focus})`);
+  check(page.url().endsWith('/') || page.url().includes('#planet'), 'first tap stays in the 3D view');
+  if (shots) await page.screenshot({ path: `${shots}/explorer-phone-jupiter.png` });
+  await tapKey(page, 'io');
+  check(await urlBecomes(page, /\/bodies\/io\/$/), 'tapping Io (with a finger) opens its page');
+
+  await page.goto(`${base}/`, { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.__explorer);
+  await page.waitForFunction(() => !window.__explorer.debug().busy, null, { timeout: 15000 });
+  await page.waitForTimeout(400);
+  const before = (await dbg(page)).dist;
+  for (let k = 0; k < 3 && (await dbg(page)).level === 'solar'; k++) {
+    const sp = await at(page, 'saturn');
+    await pinch(page, sp.x, Math.min(Math.max(sp.y, 140), 620), 40, 260);
+    await page.waitForTimeout(500);
+  }
+  await page.waitForTimeout(1600);
+  d = await dbg(page);
+  check(d.level === 'planet' && d.focus === 'saturn', `pinching at Saturn zooms into Saturn, not the Sun (${d.level}/${d.focus}, dist ${before.toFixed(0)}→${d.dist.toFixed(1)})`);
+  if (shots) await page.screenshot({ path: `${shots}/explorer-phone-saturn.png` });
+
+  await page.locator('#leaf').tap();
+  check(await urlBecomes(page, /\/bodies\/saturn\/$/), 'tapping the focused name in the scale ladder opens its page');
+
+  await page.goto(`${base}/#planet=jupiter`, { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.__explorer);
+  await page.waitForTimeout(1500);
+  for (let k = 0; k < 4 && (await dbg(page)).level === 'planet'; k++) {
+    await pinch(page, 187, 380, 300, 40);
+    await page.waitForTimeout(400);
+  }
+  await page.waitForTimeout(1500);
+  check((await dbg(page)).level === 'solar', 'pinching out of a planet returns to the solar system');
+  check(errors.length === 0, `no console errors on a phone ${errors.slice(0, 3).join(' | ')}`);
   await ctx.close();
 }
 

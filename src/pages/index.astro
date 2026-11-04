@@ -149,7 +149,8 @@ const links: [string, string][] = [
         document.querySelectorAll<HTMLButtonElement>('#ladder button[data-go]').forEach((b) =>
           b.addEventListener('click', () => {
             const g = b.dataset.go!;
-            if (g !== 'leaf') void app.go(g as Level);
+            if (g === 'leaf') app.openFocused();
+            else void app.go(g as Level);
           }),
         );
         const menuBtn = $<HTMLButtonElement>('menuBtn');
@@ -335,6 +336,10 @@ const links: [string, string][] = [
   }
   .ladder .leaf button {
     padding-left: 26px;
+  }
+  .ladder .leaf button::after {
+    content: ' ↗';
+    color: #86b6ef;
   }
   .br {
     position: fixed;

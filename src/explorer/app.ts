@@ -35,6 +35,8 @@ interface Pick {
   eq?: number | null;
   priority: number;
   act: () => void;
+  /** planet slug a touch tap should fly to before opening it */
+  focus?: string;
 }
 
 export interface Hud {
@@ -476,7 +478,7 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
 
   function limits() {
     if (level === 'solar') return [4, 150];
-    if (level === 'planet' && focus) return [focus.vr * 2.2, 60];
+    if (level === 'planet' && focus) return [focus.vr * 3, 60];
     if (level === 'stars') return [3, 120];
     if (level === 'system') return [4, 70];
     return [22, 170];
@@ -590,7 +592,7 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
       out.push({ key: 'sun', pos: sunMesh.position, r: SUN_R, minPx: 14, kind: 'open', label: solar.sun.n, eq: solar.sun.eq, priority: 1, act: nav('sun') });
       for (const o of planetObjs) {
         const focused = focus === o;
-        out.push({ key: o.d.s, pos: o.mesh.position, r: o.vr, minPx: 10, kind: 'open', label: o.d.n, sub: o.d.moons ? `衛星 ${o.d.moons}` : undefined, eq: o.d.eq, priority: 3, act: nav(o.d.s) });
+        out.push({ key: o.d.s, pos: o.mesh.position, r: o.vr, minPx: 10, kind: 'open', label: o.d.n, sub: o.d.moons ? `衛星 ${o.d.moons}` : undefined, eq: o.d.eq, priority: 3, act: nav(o.d.s), focus: o.d.s });
         if (!focused) out.push({ key: `${o.d.s}-halo`, pos: o.mesh.position, r: o.vr * 4.5, minPx: 34, kind: 'zoom', label: o.d.n, sub: o.d.moons ? `衛星 ${o.d.moons}` : undefined, eq: o.d.eq, priority: 1, act: () => void go('planet', o.d.s) });
       }
       if (level === 'solar' || camDist() > 6) {
@@ -617,7 +619,8 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
   }
 
   const ndc = new THREE.Vector3();
-  function hit(px: number, py: number): Pick | null {
+  /** tol > 1 widens every hit area (fingers are less precise than a mouse). */
+  function hit(px: number, py: number, tol = 1): Pick | null {
     const W = renderer.domElement.clientWidth;
     const H = renderer.domElement.clientHeight;
     const fovK = H / (2 * Math.tan((camera.fov * Math.PI) / 360));
@@ -628,7 +631,7 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
       const sx = ((ndc.x + 1) / 2) * W;
       const sy = ((1 - ndc.y) / 2) * H;
       const dist = camera.position.distanceTo(p.pos);
-      const rpx = Math.max(p.minPx, (p.r / dist) * fovK);
+      const rpx = Math.max(p.minPx * tol, (p.r / dist) * fovK);
       const dpx = Math.hypot(sx - px, sy - py);
       if (dpx > rpx) continue;
       const score = p.priority * 1000 - dpx - (p.kind === 'zoom' ? 50 : 0) - dist * 0.01;
@@ -648,16 +651,53 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
   let down0: { x: number; y: number; t: number } | null = null;
   let hovered: Pick | null = null;
   // event timestamps (not handler time) so a slow frame doesn't turn a tap into a long press
-  el.addEventListener('pointerdown', (e) => (down0 = { x: e.clientX, y: e.clientY, t: e.timeStamp }));
+  const ptrs = new Map<number, { x: number; y: number }>();
+  let multi = false; // a second finger joined: the gesture is a pinch, not a tap
+  let pinch0 = 0;
+  el.addEventListener('pointerdown', (e) => {
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size > 1) multi = true;
+    down0 = { x: e.clientX, y: e.clientY, t: e.timeStamp };
+  });
+  const lift = (e: PointerEvent) => {
+    ptrs.delete(e.pointerId);
+    pinch0 = 0;
+  };
+  el.addEventListener('pointercancel', (e) => {
+    lift(e);
+    down0 = null;
+  });
   el.addEventListener('pointerup', (e) => {
-    if (!down0) return;
+    lift(e);
+    const wasMulti = multi;
+    if (ptrs.size === 0) multi = false;
+    if (!down0 || wasMulti) {
+      down0 = null;
+      return;
+    }
     const moved = Math.hypot(e.clientX - down0.x, e.clientY - down0.y);
     const quick = e.timeStamp - down0.t < 800;
     down0 = null;
-    if (moved > 6 || !quick || anim) return;
+    const touch = e.pointerType !== 'mouse';
+    if (moved > (touch ? 12 : 6) || !quick || anim) return;
     const r = el.getBoundingClientRect();
-    const h = hit(e.clientX - r.left, e.clientY - r.top);
-    if (h) h.act();
+    const h = hit(e.clientX - r.left, e.clientY - r.top, touch ? 2.2 : 1);
+    if (!h) return;
+    // a finger can't tell a planet from the space around it: the first tap flies there, the next opens it
+    if (touch && h.focus && focus?.d.s !== h.focus) void go('planet', h.focus);
+    else h.act();
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size !== 2) return;
+    const [a, b] = [...ptrs.values()];
+    const d = Math.hypot(a!.x - b!.x, a!.y - b!.y);
+    if (pinch0 > 0 && Math.abs(d / pinch0 - 1) > 0.008) {
+      const r = el.getBoundingClientRect();
+      zoomIntent(d > pinch0 ? 'in' : 'out', (a!.x + b!.x) / 2 - r.left, (a!.y + b!.y) / 2 - r.top, 0.34);
+    }
+    pinch0 = d;
   });
   el.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch') return;
@@ -679,44 +719,87 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
     }
   });
 
-  // wheel past the zoom limits switches scale
+  // zooming (wheel or pinch): toward a planet near the pointer, and past the limits switches scale
   let push = 0;
   let pushT = 0;
+  let zoomTo: PlanetObj | null = null;
+  let zoomT = 0;
+  function nearestPlanetOnScreen(x: number, y: number): PlanetObj | null {
+    const W = renderer.domElement.clientWidth;
+    const H = renderer.domElement.clientHeight;
+    let best: { p: PlanetObj; d: number } | null = null;
+    for (const p of planetObjs) {
+      const v = p.mesh.position.clone().project(camera);
+      if (v.z < -1 || v.z > 1) continue;
+      const d = Math.hypot(((v.x + 1) / 2) * W - x, ((1 - v.y) / 2) * H - y);
+      if (d < Math.min(W, H) * 0.22 && (!best || d < best.d)) best = { p, d };
+    }
+    // pinching at the Sun keeps zooming at the Sun even with Mercury close by on screen
+    const sv = sunMesh.position.clone().project(camera);
+    const sunD = Math.hypot(((sv.x + 1) / 2) * W - x, ((1 - sv.y) / 2) * H - y);
+    if (best && sunD < best.d) return null;
+    return best?.p ?? null;
+  }
+  function zoomIntent(dir: 'in' | 'out', x: number, y: number, weight: number) {
+    const now = performance.now();
+    if (level === 'solar' && !anim) {
+      if (dir === 'in') {
+        // lock onto one planet for the whole gesture, and slide toward it with every zoom step
+        // (event-driven, so it keeps up even when frames are slow)
+        if (!(zoomTo && now - zoomT < 400)) zoomTo = nearestPlanetOnScreen(x, y);
+        if (zoomTo) {
+          zoomT = now;
+          const delta = zoomTo.mesh.position.clone().sub(controls.target).multiplyScalar(Math.min(0.6, 0.3 * weight));
+          controls.target.add(delta);
+          camera.position.add(delta);
+          if (camera.position.distanceTo(zoomTo.mesh.position) < zoomTo.vr * 14) {
+            const p = zoomTo;
+            zoomTo = null;
+            void go('planet', p.d.s);
+          }
+        }
+      } else zoomTo = null;
+    }
+    overflow(dir, weight, now);
+  }
+  function overflow(dir: 'in' | 'out', weight: number, now: number) {
+    // one scale change per zoom gesture: after a switch, wait until zooming has been idle.
+    // ~20 rendered frames catches slow devices that deliver a gesture's events in bursts;
+    // a pause of 1.5 s always counts as a new gesture, however low the frame rate
+    const gap = now - lastWheel;
+    const idle = gap > 1500 || (gap > 300 && frames - lastWheelFrame > 20);
+    lastWheel = now;
+    lastWheelFrame = frames;
+    if (needIdle) {
+      // the gesture that triggered the last switch must end after the transition settles
+      if (!idle || anim || now - switchedAt < 1400) return;
+      needIdle = false;
+    }
+    if (anim || now - switchedAt < 1400) return;
+    const [mn, mx] = limits();
+    const d = camDist();
+    if (now - pushT > 700) push = 0;
+    if (dir === 'out' && d >= mx! * 0.985) {
+      push += weight;
+      pushT = now;
+      if (push >= 3) {
+        push = 0;
+        up();
+      }
+    } else if (dir === 'in' && d <= mn! * 1.03 && (level === 'stars' || level === 'galaxy')) {
+      push += weight;
+      pushT = now;
+      if (push >= 3) {
+        push = 0;
+        down();
+      }
+    }
+  }
   el.addEventListener(
     'wheel',
     (e) => {
-      const now = performance.now();
-      // one scale change per scroll gesture: after a switch, wait until the wheel has been idle
-      // for ~20 rendered frames (frame-based, so slow devices that delay events behave the same)
-      const idle = now - lastWheel > 300 && frames - lastWheelFrame > 20;
-      lastWheel = now;
-      lastWheelFrame = frames;
-      if (needIdle) {
-        // the gesture that triggered the last switch must end after the transition settles
-        if (!idle || anim || now - switchedAt < 1400) return;
-        needIdle = false;
-      }
-      if (anim || now - switchedAt < 1400) return;
-      const [mn, mx] = limits();
-      const d = camDist();
-      if (now - pushT > 700) push = 0;
-      if (e.deltaY > 0 && d >= mx! * 0.985) {
-        push++;
-        pushT = now;
-        if (push >= 3) {
-          push = 0;
-          up();
-        }
-      } else if (e.deltaY < 0 && d <= mn! * 1.03 && (level === 'stars' || level === 'galaxy')) {
-        push++;
-        pushT = now;
-        if (push >= 3) {
-          push = 0;
-          down();
-        }
-      } else if (level === 'planet' && e.deltaY > 0 && focus && d > focus.vr * 40) {
-        void go('solar');
-      }
+      const r = el.getBoundingClientRect();
+      zoomIntent(e.deltaY < 0 ? 'in' : 'out', e.clientX - r.left, e.clientY - r.top, 1);
     },
     { passive: true },
   );
@@ -749,6 +832,26 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
         controls.target.add(delta);
       }
       if (focus && anim) anim.tTo.copy(focus.mesh.position);
+      if (level === 'solar' && !anim) {
+        if (zoomTo && now - zoomT < 700) {
+          // keep the planet centred while it moves along its orbit during the gesture
+          const delta = zoomTo.mesh.position.clone().sub(controls.target).multiplyScalar(1 - Math.exp(-dt * 4));
+          controls.target.add(delta);
+          camera.position.add(delta);
+          if (camera.position.distanceTo(zoomTo.mesh.position) < zoomTo.vr * 14) {
+            const p = zoomTo;
+            zoomTo = null;
+            void go('planet', p.d.s);
+          }
+        } else if (controls.target.lengthSq() > 1e-4 && camDist() > 30) {
+          // zoomed back out: drift the centre back to the Sun
+          const k = Math.min(1, dt * 0.9 * Math.min(1, (camDist() - 30) / 40));
+          const delta = controls.target.clone().multiplyScalar(-k);
+          controls.target.add(delta);
+          camera.position.add(delta);
+        }
+      }
+      if (level === 'planet' && focus && !anim && camDist() > focus.vr * 40) void go('solar');
     }
     if (level === 'system') updateSystem();
 
@@ -821,6 +924,10 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
     go,
     up,
     back,
+    openFocused() {
+      if (level === 'planet' && focus) openBody(focus.d.s);
+      else if (level === 'system' && sys) openUrl(u(`/systems/${sys.star.s}/`));
+    },
     togglePause: () => {
       paused = !paused;
       hud.setPaused(paused);
@@ -829,7 +936,7 @@ export async function startExplorer(canvasHost: HTMLElement, labelHost: HTMLElem
       return level;
     },
     // used by the smoke test
-    debug: () => ({ level, focus: focus?.d.s ?? null, dist: camDist(), jd, busy: !!anim }),
+    debug: () => ({ level, focus: focus?.d.s ?? null, dist: camDist(), jd, busy: !!anim, zoomTo: zoomTo?.d.s ?? null, target: controls.target.toArray().map((x) => Math.round(x * 10) / 10) }),
     pickAt(x: number, y: number) {
       const r = renderer.domElement.getBoundingClientRect();
       return hit(x - r.left, y - r.top)?.key ?? null;
