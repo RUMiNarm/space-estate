@@ -51,13 +51,13 @@ export const SURVIVAL_JA: Record<SurvivalCause, string> = {
   unknownAtmosphere: '大気が不明',
 };
 
-export const EQUIP: Record<EquipmentLevel | 'null', { label: string; short: string; color: string; icon: string }> = {
-  0: { label: 'Lv0 普段着でOK', short: 'Lv0', color: 'var(--good)', icon: '✓' },
-  1: { label: 'Lv1 酸素ボンベと寒さ・暑さ対策', short: 'Lv1', color: 'var(--warning)', icon: '!' },
-  2: { label: 'Lv2 与圧服（宇宙服）が必要', short: 'Lv2', color: 'var(--serious)', icon: '!!' },
-  3: { label: 'Lv3 特殊な遮蔽が必要', short: 'Lv3', color: 'var(--critical)', icon: '⚠' },
-  4: { label: 'Lv4 現在の技術では入居不可', short: 'Lv4', color: 'var(--ink)', icon: '✕' },
-  null: { label: '判定不能（データ不足）', short: '判定不能', color: 'var(--muted)', icon: '?' },
+export const EQUIP: Record<EquipmentLevel | 'null', { label: string; short: string; color: string }> = {
+  0: { label: 'Lv0 装備なし', short: 'Lv0', color: 'var(--good)' },
+  1: { label: 'Lv1 酸素ボンベと防寒・防暑', short: 'Lv1', color: 'var(--warning)' },
+  2: { label: 'Lv2 与圧服（宇宙服）', short: 'Lv2', color: 'var(--serious)' },
+  3: { label: 'Lv3 特殊な遮蔽', short: 'Lv3', color: 'var(--critical)' },
+  4: { label: 'Lv4 現在の技術では滞在できない', short: 'Lv4', color: 'var(--ink)' },
+  null: { label: '判定不能（データ不足）', short: '判定不能', color: 'var(--muted)' },
 };
 
 const nf = (d: number) => new Intl.NumberFormat('ja-JP', { maximumFractionDigits: d, minimumFractionDigits: 0 });

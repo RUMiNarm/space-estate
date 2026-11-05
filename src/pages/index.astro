@@ -3,7 +3,7 @@ import '../styles/global.css';
 import { u } from '../lib/base.ts';
 const links: [string, string][] = [
   ['/list/', '一覧'],
-  ['/search/', '物件検索'],
+  ['/search/', '検索'],
   ['/guided/', 'ガイド付き検索'],
   ['/compare/', '比較'],
   ['/ranking/', 'ランキング'],
@@ -18,7 +18,7 @@ const links: [string, string][] = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>宇宙物件ガイド</title>
-    <meta name="description" content="太陽系から天の川銀河まで、3D の宇宙を回って住めるかどうかを調べる宇宙の物件検索。" />
+    <meta name="description" content="太陽系から天の川銀河までを3Dで表示し、各天体に住めるかどうかを調べられます。" />
     <meta property="og:title" content="宇宙物件ガイド" />
     <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
   </head>
@@ -116,7 +116,7 @@ const links: [string, string][] = [
           const lv = $('cardLv');
           if (p.eq !== undefined) {
             const e = EQUIP[p.eq === null ? 'null' : (p.eq as 0 | 1 | 2 | 3 | 4)];
-            lv.innerHTML = `<span class="dot" style="background:${e.color}"></span>${e.icon} ${e.short}`;
+            lv.innerHTML = `<span class="dot" style="background:${e.color}"></span>${e.short}`;
           } else lv.textContent = '';
           $('cardAct').textContent = p.kind === 'zoom' ? '⊕' : '↗';
           const W = innerWidth;

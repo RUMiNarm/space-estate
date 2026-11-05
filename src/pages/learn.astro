@@ -14,10 +14,10 @@ const trappist = sysBySlug.get('sys-trappist-1');
 const tp = trappist ? trappist.members.map((m) => bySlug.get(m)!) : [];
 ---
 
-<Base title="解説" description="ハビタブルゾーン、岩石惑星の目安、大気と気圧、生身での生存時間、ESI などの解説。">
+<Base title="解説" description="ハビタブルゾーン、岩石惑星の目安、大気と気圧、宇宙服なしでの生存時間、ESI などの解説。">
   <h1>解説：住める星の条件</h1>
   <nav class="toc small">
-    <a href="#hz">ハビタブルゾーン</a><a href="#rocky">岩石惑星の目安</a><a href="#pressure">大気と気圧</a><a href="#survival">生身で何秒もつか</a><a href="#esi">ESI</a><a href="#confidence">実測・計算値・本サイト計算</a>
+    <a href="#hz">ハビタブルゾーン</a><a href="#rocky">岩石惑星の目安</a><a href="#pressure">大気と気圧</a><a href="#survival">宇宙服なしで何秒もつか</a><a href="#esi">ESI</a><a href="#confidence">実測・計算値・本サイト計算</a>
   </nav>
 
   <section id="hz">
@@ -47,8 +47,8 @@ const tp = trappist ? trappist.members.map((m) => bySlug.get(m)!) : [];
   </section>
 
   <section id="survival">
-    <h2>生身で何秒もつか</h2>
-    <p>各物件の環境から、最も早く命に関わる要因を次の順で調べています：恒星 → 1,000°C以上の高温 → 地面がない → 150°C以上の高温 → 0.063気圧未満（真空に近い） → 大気が不明 → 酸素がない。</p>
+    <h2>宇宙服なしで何秒もつか</h2>
+    <p>各天体の環境から、最も早く命に関わる要因を次の順で調べています：恒星 → 1,000°C以上の高温 → 地面がない → 150°C以上の高温 → 0.063気圧未満（真空に近い） → 大気が不明 → 酸素がない。</p>
     <p>真空に近い環境では、犬の実験で減圧から9〜10秒で倒れ、120秒未満の曝露ではすべて生き延びています（NASA の1965年の報告書）。チンパンジーでも同様の実験が行われています。</p>
     <p class="small muted">数値は動物実験や生理学の文献に基づく目安で、実際の結果は状況によって大きく変わります。</p>
   </section>

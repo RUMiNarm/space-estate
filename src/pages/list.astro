@@ -1,6 +1,6 @@
 ---
 import { u } from '../lib/base.ts';
-import BodyCard from '../components/BodyCard.astro';
+import BodyTable from '../components/BodyTable.astro';
 import Equip from '../components/Equip.astro';
 import Base from '../layouts/Base.astro';
 import { data } from '../lib/data.ts';
@@ -10,10 +10,10 @@ import type { EquipmentLevel } from '../lib/types.ts';
 const { bySlug, report, bodies } = data();
 const pick = (slugs: string[]) => slugs.map((s) => bySlug.get(s)!).filter(Boolean);
 const series = [
-  { title: '惑星編', note: '太陽系の8惑星。住めるのは今のところ1つだけ。', items: pick(['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) },
-  { title: '準惑星編', note: 'IAU が認める5つの準惑星。', items: pick(['ceres', 'pluto', 'haumea', 'makemake', 'eris']) },
-  { title: '系外惑星編', note: '太陽系の外の「住めるかもしれない」物件。', items: pick(['proxima-cen-b', 'teegardens-star-b', 'trappist-1-e', 'kepler-22-b', 'corot-7-b', 'toi-700-d']) },
-  { title: '衛星編', note: '惑星のまわりの、海や大気を持つ物件。', items: pick(['moon', 'titan', 'europa', 'enceladus', 'io', 'ganymede']) },
+  { title: '惑星', items: pick(['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) },
+  { title: '準惑星', items: pick(['ceres', 'pluto', 'haumea', 'makemake', 'eris']) },
+  { title: '主な衛星', items: pick(['moon', 'titan', 'europa', 'enceladus', 'io', 'ganymede']) },
+  { title: '主な系外惑星', items: pick(['proxima-cen-b', 'teegardens-star-b', 'trappist-1-e', 'kepler-22-b', 'corot-7-b', 'toi-700-d']) },
 ];
 const levels: (EquipmentLevel | null)[] = [0, 1, 2, 3, 4, null];
 const levelCount = (l: EquipmentLevel | null) => bodies.filter((b) => b.equipment.level === l).length;
@@ -21,38 +21,25 @@ const levelExample: Record<string, string> = { '0': '地球', '1': 'タイタン
 const cats = Object.entries(report.byCategory).filter(([, n]) => n > 0);
 ---
 
-<Base title="物件一覧">
-  <section class="hero">
-    <p class="kicker">宇宙の物件検索サイト</p>
-    <h1>そろそろ地球、飽きません？</h1>
-    <p class="lead">
-      惑星・準惑星・衛星・小天体・系外惑星あわせて <b class="num">{report.total.toLocaleString('ja-JP')}</b> 件の天体を「物件」として掲載しています。
-      住めない物件もすべて載せて、<b>生身で放り出されたら何秒もつか</b>、<b>どんな装備なら住めるか</b>を一次ソースのデータから判定します。
-    </p>
-    <div class="cta">
-      <a class="btn primary" href={u('/guided/')}>条件を足して住める星を探す</a>
-      <a class="btn" href={u('/search/')}>物件検索</a>
-      <a class="btn" href={u('/compare/')}>物件を比較</a>
-    </div>
-    <ul class="stats">
-      {cats.map(([c, n]) => (
-        <li><a href={u(`/catalog/${c}/`)}><b class="num">{n.toLocaleString('ja-JP')}</b><span>{CATEGORY_JA[c as keyof typeof CATEGORY_JA]}</span></a></li>
-      ))}
-    </ul>
-  </section>
+<Base title="一覧">
+  <h1>一覧</h1>
+  <p class="lead">{report.total.toLocaleString('ja-JP')} 天体を掲載。宇宙服なしで何秒もつか、どの装備で住めるかを一次ソースのデータで判定しています。</p>
+  <ul class="cats">
+    {cats.map(([c, n]) => (
+      <li><a href={u(`/catalog/${c}/`)}>{CATEGORY_JA[c as keyof typeof CATEGORY_JA]}</a> <span class="num muted">{n.toLocaleString('ja-JP')}</span></li>
+    ))}
+  </ul>
 
   {series.map((s) => (
     <section>
       <h2>{s.title}</h2>
-      <p class="muted">{s.note}</p>
-      <div class="grid grid-cards">{s.items.map((b) => <BodyCard body={b} />)}</div>
+      <BodyTable bodies={s.items} />
     </section>
   ))}
 
   <section>
-    <h2>入居条件（装備レベル）</h2>
-    <p class="muted">すべての物件を、住むのに最低限必要な装備で5段階に分けています。判定ルールは<a href={u('/method/#equipment')}>判定方法</a>に記載しています。</p>
-    <div class="table-scroll card rwrap">
+    <h2>装備レベル</h2>
+    <div class="table-scroll rwrap">
       <table class="rtable">
         <thead><tr><th>レベル</th><th>例</th><th class="num">件数</th></tr></thead>
         <tbody>
@@ -66,66 +53,20 @@ const cats = Object.entries(report.byCategory).filter(([, n]) => n > 0);
         </tbody>
       </table>
     </div>
-  </section>
-
-  <section class="card about">
-    <h2>このサイトについて</h2>
-    <p>数値はすべて一次ソース（NASA の公式ファクトシートとデータベース、JPL、査読論文）から取得し、値ごとに出典と「実測・計算値・本サイト計算」の区別を表示しています。手書きの紹介文がある厳選物件は {report.curated} 件で、それ以外はデータから自動で説明文を作っています。</p>
-    <p class="small muted">企画の参考にした動画（ゆる天文学ラジオ「移住マイスター」シリーズ）の内容は、一次ソースで照合して<a href={u('/method/#factcheck')}>ファクトチェック表</a>にまとめています。</p>
+    <p class="small"><a href={u('/method/#equipment')}>判定ルール</a></p>
   </section>
 </Base>
 
 <style>
-  .hero {
-    padding: 16px 0 8px;
-  }
-  .kicker {
-    color: var(--tag-ink);
-    font-weight: 700;
-    margin: 0 0 4px;
-  }
   .lead {
-    font-size: 1.08rem;
     max-width: 46em;
   }
-  .cta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 16px 0;
-  }
-  .stats {
+  .cats {
     list-style: none;
     padding: 0;
-    margin: 16px 0 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 8px;
-  }
-  .stats a {
+    margin: 12px 0 0;
     display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .stats a:hover {
-    border-color: var(--accent);
-  }
-  .stats b {
-    font-size: 1.4rem;
-  }
-  .stats span {
-    color: var(--ink-2);
-    font-size: 0.85rem;
-  }
-  .about {
-    margin-top: 32px;
-  }
-  .about h2 {
-    margin-top: 0;
+    flex-wrap: wrap;
+    gap: 4px 20px;
   }
 </style>

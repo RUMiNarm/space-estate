@@ -1,5 +1,5 @@
 ---
-/** One value with its confidence badge and footnote link to the page's source list. */
+/** One value with its confidence note (omitted for measured values) and footnote link. */
 import { CONF_JA, limPrefix } from '../lib/format.ts';
 import type { Val } from '../lib/types.ts';
 
@@ -18,7 +18,7 @@ const { v, text, fn } = Astro.props;
   ) : (
     <span>
       <span class="num">{limPrefix(v)}{text}</span>
-      <span class="badge-conf" data-c={v.c}>{CONF_JA[v.c]}</span>
+      {v.c !== 'measured' && <span class="conf">{CONF_JA[v.c]}</span>}
       {fn != null && <sup><a href={`#src-${fn}`} aria-label={`出典 ${fn}`}>[{fn}]</a></sup>}
       {v.note && <span class="small muted note">（{v.note}）</span>}
     </span>

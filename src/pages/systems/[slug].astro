@@ -32,7 +32,7 @@ for (const m of members) for (const v of [m.aAU, m.radiusE, m.tempMaxK, m.tempMe
 if (host) for (const v of [host.teffK, host.radiusSun, host.lumLogSun]) if (v.src && sources[v.src]) srcIds.add(v.src);
 ---
 
-<Base title={title} description={`${title}の物件一覧とハビタブルゾーンの位置。`}>
+<Base title={title} description={`${title}の天体一覧とハビタブルゾーンの位置。`}>
   <nav class="small muted"><a href={u('/')}>トップ</a> › <a href={u('/catalog/')}>カタログ</a> › {title}</nav>
   <h1>{title}</h1>
   <p class="lead">
@@ -45,10 +45,10 @@ if (host) for (const v of [host.teffK, host.radiusSun, host.lumLogSun]) if (v.sr
   <HzDiagram bodies={plotted} hz={{ inner: sys.hzInnerAU, outer: sys.hzOuterAU, optInner: plotted.find((p) => p.hz.optInnerAU != null)?.hz.optInnerAU ?? null, optOuter: plotted.find((p) => p.hz.optOuterAU != null)?.hz.optOuterAU ?? null }} />
   {sys.hzInnerAU == null && !isSolar && <p class="small muted">主星の温度・明るさが分からないか、モデルの適用範囲外のため、ハビタブルゾーンを描けません。</p>}
 
-  <h2>物件一覧</h2>
+  <h2>天体一覧</h2>
   <div class="table-scroll rwrap">
     <table class="rtable">
-      <thead><tr><th>物件</th><th>恒星からの距離</th><th>半径（地球=1）</th><th>代表温度</th><th>立地</th><th>入居条件</th></tr></thead>
+      <thead><tr><th>天体</th><th>恒星からの距離</th><th>半径（地球=1）</th><th>代表温度</th><th>ハビタブルゾーン</th><th>装備</th></tr></thead>
       <tbody>
         {members.map((m) => (
           <tr>
@@ -56,8 +56,8 @@ if (host) for (const v of [host.teffK, host.radiusSun, host.lumLogSun]) if (v.sr
             <td class="num" data-label="恒星からの距離">{m.aAU.v != null ? `${fmt(m.aAU.v)} au` : '不明'}</td>
             <td class="num" data-label="半径（地球=1）">{m.radiusE.v != null ? `${fmt(m.radiusE.v)}${m.radiusE.c === 'calculated' ? '（計算値）' : ''}` : '不明'}</td>
             <td class="num" data-label="代表温度">{fmtTemp(representativeTempK(m))}</td>
-            <td data-label="立地">{m.category === 'star' ? '—' : HZ_JA[m.hz.status]}</td>
-            <td data-label="入居条件"><Equip eq={m.equipment} short /></td>
+            <td data-label="ハビタブルゾーン">{m.category === 'star' ? '—' : HZ_JA[m.hz.status]}</td>
+            <td data-label="装備"><Equip eq={m.equipment} short /></td>
           </tr>
         ))}
       </tbody>
@@ -66,7 +66,7 @@ if (host) for (const v of [host.teffK, host.radiusSun, host.lumLogSun]) if (v.sr
   {sys.overviewUrl && <p class="small"><a href={sys.overviewUrl} rel="noopener">NASA Exoplanet Archive の {sys.name} の概要ページ</a></p>}
   <h2>出典</h2>
   <ul class="small">{[...srcIds].map((id) => <li><a href={u(sources[id]!.url)} rel="noopener">{sources[id]!.label}</a></li>)}</ul>
-  <p class="small muted">各値の出典の詳細は、それぞれの物件ページに記載しています。</p>
+  <p class="small muted">各値の出典は、それぞれの天体のページに記載しています。</p>
 </Base>
 
 <style>

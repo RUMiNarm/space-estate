@@ -38,7 +38,7 @@ for (const [label, viewport, scheme] of [
   };
 
   await visit('/list/', 'list');
-  check((await page.locator('h1').innerText()).includes('地球'), `[${label}] list page h1`);
+  check((await page.locator('table.rtable').count()) >= 4, `[${label}] list page shows body tables`);
 
   await visit('/bodies/mars/', 'mars');
   check(await page.getByText('与圧服').first().isVisible(), `[${label}] Mars shows pressure-suit verdict`);
@@ -65,7 +65,7 @@ for (const [label, viewport, scheme] of [
 
   await visit('/compare/', 'compare');
   await page.waitForSelector('.bar-row');
-  check((await page.locator('.legend .chip').count()) === 4, `[${label}] compare preloads 4 bodies`);
+  check((await page.locator('.legend li').count()) === 4, `[${label}] compare preloads 4 bodies`);
 
   await visit('/method/', 'method');
   check((await page.locator('#factcheck tbody tr').count()) >= 20, `[${label}] fact-check table rendered`);

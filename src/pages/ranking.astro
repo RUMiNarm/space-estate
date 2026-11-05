@@ -19,25 +19,24 @@ const coldest = top(teq, 10, (b) => b.tempEqK.v!);
 
 const tables: { id: string; title: string; note: string; rows: Body[]; value: (b: Body) => string; bar?: (b: Body) => number }[] = [
   { id: 'esi', title: 'ESI（地球類似性指標）が高い系外惑星', note: '恒星から受ける光の量と半径（または質量）から、PHL 方式で本サイトが計算した値。大気や地表の状態は含みません。', rows: esiTop, value: (b) => fmt(b.esi, 3), bar: (b) => b.esi! },
-  { id: 'hz', title: '保守的なハビタブルゾーン内の物件（近い順）', note: 'Kopparapu ら（2014）の保守的な範囲の内側にある物件。太陽系の天体を先頭に表示します。', rows: hzNear, value: (b) => (b.system === 'solar' ? '太陽系' : fmtLy(b.distanceLy.v)) },
+  { id: 'hz', title: '保守的なハビタブルゾーン内の天体（近い順）', note: 'Kopparapu ら（2014）の保守的な範囲。太陽系の天体が先頭。', rows: hzNear, value: (b) => (b.system === 'solar' ? '太陽系' : fmtLy(b.distanceLy.v)) },
   { id: 'near', title: '地球に近い系外惑星', note: 'NASA Exoplanet Archive の距離（sy_dist）による。', rows: nearest, value: (b) => fmtLy(b.distanceLy.v) },
-  { id: 'gravity', title: '重力が地球に近い、地面のある物件', note: '重力が分かっていて、固体の地表があると判定された物件。', rows: gravity, value: (b) => `${fmt(b.gravityG.v)} 倍` },
+  { id: 'gravity', title: '重力が地球に近い、地面のある天体', note: '重力が分かっていて、固体の地表があると判定された天体。', rows: gravity, value: (b) => `${fmt(b.gravityG.v)} 倍` },
   { id: 'hot', title: '放射平衡温度が最も高い系外惑星', note: 'アルベド0・熱が全体に行き渡ると仮定した温度。昼側はさらに高温になりえます。', rows: hottest, value: (b) => fmtTemp(b.tempEqK.v) },
   { id: 'cold', title: '放射平衡温度が最も低い系外惑星', note: '恒星から非常に遠い惑星などが並びます。', rows: coldest, value: (b) => fmtTemp(b.tempEqK.v) },
 ];
 ---
 
-<Base title="ランキング" description="ESI・ハビタブルゾーン・距離・重力・温度で並べた物件ランキング。">
+<Base title="ランキング" description="ESI・ハビタブルゾーン・距離・重力・温度で並べたランキング。">
   <h1>ランキング</h1>
-  <p class="muted">生身で長く生きられる順に並べると、地球以外は「数秒〜数十秒」でほぼ横並びになります。そこで、住みやすさの手がかりになる項目ごとに並べました。</p>
   <nav class="toc small">{tables.map((t) => <a href={`#${t.id}`}>{t.title}</a>)}</nav>
   {tables.map((t) => (
     <section id={t.id}>
       <h2>{t.title}</h2>
       <p class="small muted">{t.note}</p>
-      <div class="table-scroll card rwrap">
+      <div class="table-scroll rwrap">
         <table class="rtable compact">
-          <thead><tr><th class="num">#</th><th>物件</th><th>値</th><th>立地</th><th>入居条件</th></tr></thead>
+          <thead><tr><th class="num">#</th><th>天体</th><th>値</th><th>ハビタブルゾーン</th><th>装備</th></tr></thead>
           <tbody>
             {t.rows.map((b, i) => (
               <tr>
@@ -46,8 +45,8 @@ const tables: { id: string; title: string; note: string; rows: Body[]; value: (b
                 <td class="num val rt-val" data-label="値">
                   <span class="valline">{t.bar && <span class="bar" style={`width:${Math.round(t.bar(b) * 80)}px`} aria-hidden="true"></span>}{t.value(b)}</span>
                 </td>
-                <td class="small rt-sub" data-label="立地">{HZ_JA[b.hz.status]}</td>
-                <td class="rt-sub" data-label="入居条件"><Equip eq={b.equipment} short /></td>
+                <td class="small rt-sub" data-label="ハビタブルゾーン">{HZ_JA[b.hz.status]}</td>
+                <td class="rt-sub" data-label="装備"><Equip eq={b.equipment} short /></td>
               </tr>
             ))}
           </tbody>

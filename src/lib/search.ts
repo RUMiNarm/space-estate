@@ -39,7 +39,7 @@ export function steps(f: Filters): Step[] {
   const out: Step[] = [];
   if (f.cats.length) out.push({ key: 'cat', label: '種類', test: (r) => f.cats.includes(r.c) });
   if (f.parent) out.push({ key: 'parent', label: '母天体', test: (r) => r.p === f.parent });
-  if (f.curatedOnly) out.push({ key: 'curated', label: '厳選物件', test: (r) => r.cu });
+  if (f.curatedOnly) out.push({ key: 'curated', label: '解説あり', test: (r) => r.cu });
   if (f.q.trim()) {
     const q = norm(f.q);
     out.push({ key: 'q', label: '名前', test: (r) => norm(r.n).includes(q) || (r.j ? norm(r.j).includes(q) : false) || norm(r.sy).includes(q) });
@@ -73,7 +73,7 @@ export function steps(f: Filters): Step[] {
   }
   if (f.eqMax != null) {
     const max = f.eqMax;
-    out.push({ key: 'eq', label: '入居条件', test: (r) => (r.eq == null ? u && r.eqMin <= max : r.eq <= max) });
+    out.push({ key: 'eq', label: '必要な装備', test: (r) => (r.eq == null ? u && r.eqMin <= max : r.eq <= max) });
   }
   return out;
 }

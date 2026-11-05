@@ -18,16 +18,21 @@ const desc: Record<string, string> = {
 };
 ---
 
-<Base title="カタログ" description="カテゴリ別の全物件一覧。">
+<Base title="カタログ" description="カテゴリ別の全天体一覧。">
   <h1>カタログ</h1>
-  <div class="grid grid-3">
-    {Object.entries(report.byCategory).map(([c, n]) => (
-      <a class="card cat" href={u(`/catalog/${c}/`)}>
-        <b>{CATEGORY_JA[c as keyof typeof CATEGORY_JA]}</b>
-        <span class="num big">{n.toLocaleString('ja-JP')} 件</span>
-        <span class="small muted">{desc[c]}</span>
-      </a>
-    ))}
+  <div class="table-scroll rwrap">
+    <table class="rtable">
+      <thead><tr><th>カテゴリ</th><th class="num">件数</th><th>内容</th></tr></thead>
+      <tbody>
+        {Object.entries(report.byCategory).map(([c, n]) => (
+          <tr>
+            <td class="rt-title"><a href={u(`/catalog/${c}/`)}>{CATEGORY_JA[c as keyof typeof CATEGORY_JA]}</a></td>
+            <td class="num" data-label="件数">{n.toLocaleString('ja-JP')}</td>
+            <td class="rt-block" data-label="内容">{desc[c]}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
 
   <h2>惑星ごとの衛星</h2>
@@ -45,20 +50,6 @@ const desc: Record<string, string> = {
 </Base>
 
 <style>
-  .cat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    text-decoration: none;
-    color: var(--ink);
-  }
-  .cat:hover {
-    border-color: var(--accent);
-  }
-  .big {
-    font-size: 1.4rem;
-    font-weight: 700;
-  }
   .inline {
     list-style: none;
     padding: 0;

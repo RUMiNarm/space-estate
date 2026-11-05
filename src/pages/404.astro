@@ -4,7 +4,6 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="ページが見つかりません">
-  <h1>この物件は見つかりませんでした</h1>
-  <p>URL が間違っているか、データの更新で名前が変わった可能性があります。</p>
-  <p><a class="btn primary" href={u('/search/')}>物件検索で探す</a></p>
+  <h1>ページが見つかりません</h1>
+  <p><a href={u('/search/')}>検索</a>・<a href={u('/')}>トップ</a></p>
 </Base>

@@ -38,7 +38,7 @@ export function representativeTempLabel(b: Pick<Body, 'tempMaxK' | 'tempMeanK' |
 
 export function estimateSurvival(b: Input): Survival {
   if (b.slug === 'earth') {
-    return { cause: 'earth', consciousSec: null, summary: '普段着で生活できます（基準となる物件）。', sourceIds: [] };
+    return { cause: 'earth', consciousSec: null, summary: '装備なしで生活できます。', sourceIds: [] };
   }
   if (b.category === 'star') {
     return {
@@ -77,7 +77,7 @@ export function estimateSurvival(b: Input): Survival {
     return {
       cause: 'heat',
       consciousSec: [0, 10],
-      summary: `${representativeTempLabel(b)}は ${fmtC(t)}。生身では数秒ももちません。`,
+      summary: `${representativeTempLabel(b)}は ${fmtC(t)}。宇宙服なしでは数秒ももちません。`,
       sourceIds: ['nasa-sp3006'],
     };
   }
@@ -120,7 +120,7 @@ export function requiredEquipment(b: EqInput): Equipment {
   const p = b.pressureBar.v;
   const lv = (level: EquipmentLevel, reason: string): Equipment => ({ level, minLevel: level, reason });
 
-  if (b.slug === 'earth') return lv(0, '基準となる物件です。');
+  if (b.slug === 'earth') return lv(0, '比較の基準です。');
   if (b.category === 'star') return lv(4, '恒星の表面には降り立てません。');
   if (t != null && t >= EXTREME_HEAT_K) return lv(4, '岩石が融けるほどの高温です。');
   if (b.hasSurface === 'no') return lv(4, '立つための地面がありません。');

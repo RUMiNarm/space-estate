@@ -1,6 +1,6 @@
 ---
 import { u } from '../../lib/base.ts';
-import BodyCard from '../../components/BodyCard.astro';
+import BodyTable from '../../components/BodyTable.astro';
 import Equip from '../../components/Equip.astro';
 import Glyph from '../../components/Glyph.astro';
 import V from '../../components/V.astro';
@@ -83,11 +83,10 @@ const moons = b.category === 'planet' || b.category === 'dwarf' ? data().bodies.
 const bigMoons = moons.filter((m) => m.radiusE.v != null).sort((a, z) => (z.radiusE.v ?? 0) - (a.radiusE.v ?? 0)).slice(0, 8);
 if (b.system !== 'solar') fn('nea');
 
-const tags = [...(c?.tags ?? []), ...auto.tags.filter((t) => !(c?.tags ?? []).includes(t))];
 const pros = c?.pros ?? auto.pros;
 const cons = c?.cons ?? auto.cons;
 const life = [...(c?.earthLife ?? []), ...auto.earthLife];
-const lead = c?.catchphrase ?? auto.summary;
+const lead = c?.lead ?? auto.summary;
 const consc = b.survival.consciousSec;
 const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
 ---
@@ -108,47 +107,53 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
         {b.nameJa && <p class="en muted">{b.name}</p>}
       </div>
       <p class="lead">{lead}</p>
-      {tags.length > 0 && <div class="tags">{tags.map((t) => <span class="tag">{t}</span>)}</div>}
     </div>
   </header>
-  {b.dataWarnings && b.dataWarnings.length > 0 && <p class="card warn small" role="note"><b>データに要注意：</b>{b.dataWarnings.join(' ')}</p>}
-  <p class="small muted glyph-note">天体の図はデータから描いた模式図で、実際の画像ではありません。{c ? '' : 'このページの説明文はデータから自動生成しています。'}</p>
+  {b.dataWarnings && b.dataWarnings.length > 0 && <p class="warn small" role="note"><b>データに要注意：</b>{b.dataWarnings.join(' ')}</p>}
 
-  <section class="grid grid-3 verdicts" aria-label="判定">
-    <div class="card verdict">
-      <h2 class="vh">生身で放り出されたら</h2>
-      <p class="big">{b.survival.cause === 'earth' ? '生活できます' : b.survival.cause === 'heat' ? (consc && consc[1] <= 1 ? '即死（高温）' : '数秒以内（高温）') : consc ? (consc[1] <= 1 ? '即死' : `約${consc[0]}〜${consc[1]}秒で意識を失う`) : SURVIVAL_JA[b.survival.cause]}</p>
-      <p class="small">{b.survival.summary}{survivalFns.map((n) => <sup><a href={`#src-${n}`}>[{n}]</a></sup>)}</p>
-    </div>
-    <div class="card verdict">
-      <h2 class="vh">入居条件</h2>
-      <p class="big"><Equip eq={b.equipment} /></p>
-      <p class="small">{b.equipment.reason}</p>
-    </div>
-    <div class="card verdict">
-      <h2 class="vh">立地</h2>
-      <p class="big">{b.category === 'star' ? '太陽系の中心' : HZ_JA[b.hz.status]}</p>
-      <p class="small">
-        {b.hz.innerAU != null && b.category !== 'star' && <>保守的なハビタブルゾーンは {fmt(b.hz.innerAU, b.hz.innerAU! < 0.1 ? 3 : 2)}〜{fmt(b.hz.outerAU, b.hz.outerAU! < 0.1 ? 3 : 2)} au（楽観的 {fmt(b.hz.optInnerAU, b.hz.optInnerAU! < 0.1 ? 3 : 2)}〜{fmt(b.hz.optOuterAU, b.hz.optOuterAU! < 0.1 ? 3 : 2)} au）。{b.aAU.v != null && <>この物件は {fmt(b.aAU.v)} au。</>}</>}
-        {b.hz.extrapolated && <>主星の温度がモデルの適用範囲外のため参考値です。</>}
-        {b.hz.status === 'unknown' && b.category !== 'star' && (b.system === 'solar' ? <>軌道が双曲線で、太陽からの平均距離が定まらないため判定できません。</> : <>主星の温度・明るさ、または軌道が分からないため判定できません。</>)}
-      </p>
-    </div>
-  </section>
+  <table class="verdicts" aria-label="判定">
+    <tbody>
+      <tr>
+        <th scope="row">宇宙服なし</th>
+        <td>
+          <b>{b.survival.cause === 'earth' ? '生活できる' : b.survival.cause === 'heat' ? (consc && consc[1] <= 1 ? '即死（高温）' : '数秒以内（高温）') : consc ? (consc[1] <= 1 ? '即死' : `約${consc[0]}〜${consc[1]}秒で意識を失う`) : SURVIVAL_JA[b.survival.cause]}</b>
+          <span class="why">{b.survival.summary}{survivalFns.map((n) => <sup><a href={`#src-${n}`}>[{n}]</a></sup>)}</span>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">必要な装備</th>
+        <td>
+          <b><Equip eq={b.equipment} /></b>
+          <span class="why">{b.equipment.reason}</span>
+        </td>
+      </tr>
+      {b.category !== 'star' && (
+        <tr>
+          <th scope="row">ハビタブルゾーン</th>
+          <td>
+            <b>{HZ_JA[b.hz.status]}</b>
+            <span class="why">
+              {b.hz.innerAU != null && <>保守的 {fmt(b.hz.innerAU, b.hz.innerAU! < 0.1 ? 3 : 2)}〜{fmt(b.hz.outerAU, b.hz.outerAU! < 0.1 ? 3 : 2)} au・楽観的 {fmt(b.hz.optInnerAU, b.hz.optInnerAU! < 0.1 ? 3 : 2)}〜{fmt(b.hz.optOuterAU, b.hz.optOuterAU! < 0.1 ? 3 : 2)} au{b.aAU.v != null && <>（{name} は {fmt(b.aAU.v)} au）</>}。</>}
+              {b.hz.extrapolated && <>主星の温度がモデルの適用範囲外のため参考値。</>}
+              {b.hz.status === 'unknown' && (b.system === 'solar' ? <>双曲線軌道のため判定できない。</> : <>主星の温度・明るさ、または軌道が不明。</>)}
+            </span>
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
 
   <div class="cols">
     <section>
-      <h2>メリット</h2>
-      {pros.length ? <ul>{pros.map((p) => <li>{p}</li>)}</ul> : <p class="muted">特筆すべきメリットは見つかりませんでした。</p>}
-      <h2>デメリット（注意事項）</h2>
-      {cons.length ? <ul>{cons.map((p) => <li>{p}</li>)}</ul> : <p class="muted">データから分かる注意事項はありません。</p>}
+      {pros.length > 0 && (<><h2>特徴</h2><ul>{pros.map((p) => <li>{p}</li>)}</ul></>)}
+      {cons.length > 0 && (<><h2>問題点</h2><ul>{cons.map((p) => <li>{p}</li>)}</ul></>)}
       {c?.origin && (<><h2>名前の由来</h2><p>{c.origin}</p></>)}
-      {life.length > 0 && (<><h2>地球人の暮らしに置き換えると</h2><ul>{life.map((p) => <li>{p}</li>)}</ul></>)}
+      {life.length > 0 && (<><h2>地球との比較</h2><ul>{life.map((p) => <li>{p}</li>)}</ul></>)}
       {refFns.length > 0 && <p class="small muted">この説明文の出典：{refFns.map((n) => <a href={`#src-${n}`}>[{n}]</a>)}</p>}
     </section>
 
     <section>
-      <h2>間取り（基本データ）</h2>
+      <h2>基本データ</h2>
       <div class="table-scroll">
         <table class="spec">
           <tbody>
@@ -160,7 +165,7 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
             {b.hazards.length > 0 && <tr><th scope="row">注意</th><td>{b.hazards.map((h) => (h === 'radiation' ? '強い放射線' : h === 'stellar-xuv' ? '主星からの強い紫外線・X線' : h)).join('、')}{hazardsFn && <sup><a href={`#src-${hazardsFn}`}>[{hazardsFn}]</a></sup>}</td></tr>}
             {b.designation && <tr><th scope="row">符号</th><td>{b.designation}</td></tr>}
             {b.discoveredBy && <tr><th scope="row">発見</th><td>{b.discoveryYear ? `${b.discoveryYear}年・` : ''}{b.discoveredBy}</td></tr>}
-            {b.esi != null && <tr><th scope="row">ESI（地球類似性指標）</th><td><span class="num">{fmt(b.esi, 3)}</span><span class="badge-conf" data-c="derived">本サイト計算</span> <a class="small" href={u('/learn/#esi')}>計算方法</a></td></tr>}
+            {b.esi != null && <tr><th scope="row">ESI（地球類似性指標）</th><td><span class="num">{fmt(b.esi, 3)}</span><span class="conf">本サイト計算</span> <a class="small" href={u('/learn/#esi')}>計算方法</a></td></tr>}
             {b.jwstObservations && <tr><th scope="row">JWST 観測</th><td>{b.jwstObservations} 回（アーカイブ登録数）</td></tr>}
           </tbody>
         </table>
@@ -175,7 +180,7 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
 
       {b.distanceLy.v != null && b.system !== 'solar' && (
         <>
-          <h3>アクセス（到着までの時間）</h3>
+          <h3>到着までの時間</h3>
           <table class="spec">
             <tbody>{TRAVEL_SPEEDS.map((s) => <tr><th scope="row">{s.label}</th><td class="num">{travelYears(b.distanceLy.v!, s.c)}</td></tr>)}</tbody>
           </table>
@@ -187,7 +192,7 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
 
   {c?.changelog && c.changelog.length > 0 && (
     <section>
-      <h2>情報の更新履歴・ファクトチェック</h2>
+      <h2>更新履歴・ファクトチェック</h2>
       <ul class="changelog">{c.changelog.map((e) => <li><time>{e.date}</time> {e.text}</li>)}</ul>
     </section>
   )}
@@ -195,15 +200,15 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
   {bigMoons.length > 0 && (
     <section>
       <h2>主な衛星（全{moons.length}個）</h2>
-      <div class="grid grid-cards">{bigMoons.map((m) => <BodyCard body={m} />)}</div>
+      <BodyTable bodies={bigMoons} />
       <p class="small"><a href={u(`/catalog/moon/?p=${b.slug}`)}>{displayName(b)}の衛星をすべて見る</a></p>
     </section>
   )}
 
   {siblings.length > 0 && b.system !== 'solar' && (
     <section>
-      <h2>同じ恒星系の物件</h2>
-      <div class="grid grid-cards">{siblings.map((s) => <BodyCard body={s} />)}</div>
+      <h2>同じ恒星系の惑星</h2>
+      <BodyTable bodies={siblings} />
       <p class="small"><a href={url.system(b.system)}>{b.systemName} 系の全体図を見る</a></p>
     </section>
   )}
@@ -216,7 +221,7 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
       ))}
     </ol>
     {b.system !== 'solar' && sys?.overviewUrl && <p class="small"><a href={sys.overviewUrl} rel="noopener">NASA Exoplanet Archive で {b.systemName} の概要を見る</a></p>}
-    <p class="small muted">「実測」は一次ソースが報告した値、「計算値」は一次ソース自身が計算した値、「本サイト計算」は一次ソースの値から本サイトが計算した値です（<a href={u('/method/')}>判定方法</a>）。</p>
+    <p class="small muted">印のない値は実測値。「計算値」は一次ソースが、「本サイト計算」は本サイトが他の値から計算した値（<a href={u('/learn/#confidence')}>説明</a>）。</p>
   </section>
 </Base>
 
@@ -245,29 +250,31 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
     font-size: 1.1rem;
     margin: 8px 0 12px;
   }
-  .glyph-note {
-    margin-top: 8px;
-  }
   .warn {
-    border-color: var(--serious);
+    border-left: 3px solid var(--serious);
+    padding: 4px 0 4px 10px;
     margin: 12px 0 0;
   }
   .verdicts {
-    margin: 16px 0 8px;
+    margin: 20px 0 8px;
+    border-top: 1px solid var(--border);
   }
-  .vh {
-    font-size: 0.9rem;
+  .verdicts th {
+    width: 9em;
+    padding: 12px 10px 12px 0;
+    white-space: nowrap;
+  }
+  .verdicts td {
+    padding: 12px 0;
+  }
+  .verdicts b {
+    display: block;
+    font-size: 1.08rem;
+    margin-bottom: 2px;
+  }
+  .why {
     color: var(--ink-2);
-    margin: 0 0 4px;
-    font-weight: 600;
-  }
-  .big {
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin: 0 0 6px;
-  }
-  .verdict .small {
-    margin: 0;
+    font-size: 0.875rem;
   }
   .cols {
     display: grid;
@@ -299,7 +306,7 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
     }
   }
   @media (max-width: 560px) {
-    /* glyph beside the name; catchphrase and tags use the full width */
+    /* glyph beside the name; the lead uses the full width */
     .hero {
       display: grid;
       grid-template-columns: 68px minmax(0, 1fr);
@@ -322,16 +329,22 @@ const desc = `${name}（${CATEGORY_JA[b.category]}）：${lead}`;
     .en {
       margin: 0;
     }
-    .hero .lead,
-    .hero .tags {
+    .hero .lead {
       grid-column: 1 / -1;
     }
     .lead {
       font-size: 1.02rem;
       margin-top: 12px;
     }
-    .big {
-      font-size: 1.08rem;
+    .verdicts th {
+      width: auto;
+      display: block;
+      padding: 12px 0 0;
+      border-bottom: 0;
+    }
+    .verdicts td {
+      display: block;
+      padding: 2px 0 12px;
     }
   }
 </style>

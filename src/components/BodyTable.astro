@@ -1,0 +1,38 @@
+---
+import { url } from '../lib/data.ts';
+import { CATEGORY_JA, displayName, fmtLy, fmtTemp, HZ_JA } from '../lib/format.ts';
+import { representativeTempK } from '../lib/survival.ts';
+import type { Body } from '../lib/types.ts';
+import Equip from './Equip.astro';
+
+interface Props {
+  bodies: Body[];
+}
+const { bodies } = Astro.props;
+const showDist = bodies.some((b) => b.system !== 'solar' && b.distanceLy.v != null);
+---
+
+<div class="table-scroll rwrap">
+  <table class="rtable bt">
+    <thead>
+      <tr><th>名前</th><th>装備</th><th class="num">代表温度</th><th>ハビタブルゾーン</th>{showDist && <th class="num">距離</th>}</tr>
+    </thead>
+    <tbody>
+      {bodies.map((b) => (
+        <tr>
+          <td class="rt-title"><a href={url.body(b.slug)}>{displayName(b)}</a><span class="small muted"> {b.nameJa ? b.name : CATEGORY_JA[b.category]}</span></td>
+          <td data-label="装備"><Equip eq={b.equipment} short /></td>
+          <td class="num" data-label="代表温度">{fmtTemp(representativeTempK(b))}</td>
+          <td data-label="ハビタブルゾーン">{b.category === 'star' ? '—' : HZ_JA[b.hz.status]}</td>
+          {showDist && <td class="num" data-label="距離">{b.system !== 'solar' && b.distanceLy.v != null ? fmtLy(b.distanceLy.v) : '—'}</td>}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .bt td:first-child a {
+    font-weight: 600;
+  }
+</style>

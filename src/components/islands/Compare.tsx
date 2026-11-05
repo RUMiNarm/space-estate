@@ -60,27 +60,27 @@ export default function Compare() {
     <div class="compare">
       <style>{CSS}</style>
       {error && <p role="alert">データを読み込めませんでした（{error}）。</p>}
-      <div class="card pick">
+      <div class="pick">
         <label>
-          <span class="small muted">物件を追加（最大4件）</span>
+          <span class="small muted">追加（最大4件）</span>
           <input type="search" value={q} placeholder="名前を入力（例：タイタン、Kepler-22）" onInput={(e) => setQ((e.target as HTMLInputElement).value)} disabled={sel.length >= 4} />
         </label>
         {matches.length > 0 && (
           <ul class="sugg">
             {matches.map((m) => (
-              <li><button type="button" class="btn" disabled={sel.includes(m.s)} onClick={() => { setSel([...sel, m.s].slice(0, 4)); setQ(''); }}>{name(m)}<span class="small muted">（{CATEGORY_JA[m.c]}）</span></button></li>
+              <li><button type="button" class="opt" disabled={sel.includes(m.s)} onClick={() => { setSel([...sel, m.s].slice(0, 4)); setQ(''); }}>{name(m)}<span class="small muted">（{CATEGORY_JA[m.c]}）</span></button></li>
             ))}
           </ul>
         )}
-        <div class="legend" aria-label="凡例">
+        <ul class="legend" aria-label="比較中">
           {chosen.map((r, i) => (
-            <span class="chip">
+            <li>
               <span class="sw" style={{ background: COLORS[i] }} aria-hidden="true" />
               <a href={u(`/bodies/${r.s}/`)}>{name(r)}</a>
               <button type="button" class="x" aria-label={`${name(r)}を外す`} onClick={() => setSel(sel.filter((s) => s !== r.s))}>×</button>
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       {chosen.length > 0 && (
@@ -97,7 +97,7 @@ export default function Compare() {
               return (Math.log10(v) - lo) / (hi - lo || 1);
             };
             return (
-              <figure class="card chart">
+              <figure class="chart">
                 <figcaption><b>{m.label}</b>{m.log && <span class="small muted">（対数目盛）</span>}{m.note && <span class="small muted">　{m.note}</span>}</figcaption>
                 {chosen.map((r, i) => {
                   const v = vals[i];
@@ -118,14 +118,14 @@ export default function Compare() {
       )}
 
       {chosen.length > 0 && (
-        <div class="card table-scroll rwrap">
+        <div class="table-scroll rwrap">
           <table class="rtable">
             <caption class="small muted" style={{ textAlign: 'left' }}>比較表（グラフと同じ値）</caption>
             <thead><tr><th>項目</th>{chosen.map((r, i) => <th><span class="sw" style={{ background: COLORS[i] }} aria-hidden="true" /> {name(r)}</th>)}</tr></thead>
             <tbody>
               <tr><th class="rt-title">種類</th>{chosen.map((r) => <td data-label={name(r)}>{CATEGORY_JA[r.c]}</td>)}</tr>
-              <tr><th class="rt-title">入居条件</th>{chosen.map((r) => <td data-label={name(r)}><EquipBadge r={r} /></td>)}</tr>
-              <tr><th class="rt-title">立地</th>{chosen.map((r) => <td data-label={name(r)}>{r.c === 'star' ? '—' : HZ_JA[r.hz]}</td>)}</tr>
+              <tr><th class="rt-title">装備</th>{chosen.map((r) => <td data-label={name(r)}><EquipBadge r={r} /></td>)}</tr>
+              <tr><th class="rt-title">ハビタブルゾーン</th>{chosen.map((r) => <td data-label={name(r)}>{r.c === 'star' ? '—' : HZ_JA[r.hz]}</td>)}</tr>
               {METRICS.map((m) => <tr><th class="rt-title">{m.label}</th>{chosen.map((r) => { const v = m.get(r); return <td class="num" data-label={name(r)}>{v == null ? '不明' : `${m.fmt(v)}${m.key === 'rad' && r.rc ? '＊（計算値）' : ''}`}</td>; })}</tr>)}
             </tbody>
           </table>
@@ -139,14 +139,19 @@ const CSS = `
 .pick{display:grid;gap:10px;margin-bottom:16px}
 .pick label{display:flex;flex-direction:column;gap:4px}
 .pick input{width:100%}
-.sugg{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-.legend{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:2px 4px 2px 10px;background:var(--surface-2)}
+.sugg{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.sugg li+li{border-top:1px solid var(--hairline)}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);background:none;border:0;padding:10px 12px;cursor:pointer}
+.opt:hover:not(:disabled){background:var(--surface-2)}
+.opt:disabled{color:var(--ink-2);cursor:default}
+.legend{list-style:none;margin:0;padding:0;border-top:1px solid var(--border)}
+.legend li{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--hairline);padding:2px 0}
+.legend .x{margin-left:auto}
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px}
-.x{border:0;background:none;color:var(--ink-2);font-size:1.2rem;cursor:pointer;line-height:1;min-width:32px;min-height:32px;border-radius:999px}
+.x{border:0;background:none;color:var(--ink-2);font-size:1.2rem;cursor:pointer;line-height:1;min-width:40px;min-height:40px;border-radius:6px}
 .x:hover{background:var(--surface)}
-.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-bottom:16px}
-.chart{margin:0}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:4px 32px;margin-bottom:24px}
+.chart{margin:0;padding:12px 0;border-top:1px solid var(--hairline)}
 .chart figcaption{margin-bottom:8px}
 .bar-row{display:grid;grid-template-columns:7.5em 1fr auto;gap:8px;align-items:center;padding:3px 0;transition:opacity .15s}
 @media (max-width:420px){.bar-row{grid-template-columns:6em 1fr auto;gap:6px}}

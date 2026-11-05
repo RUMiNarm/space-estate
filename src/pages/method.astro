@@ -33,7 +33,7 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
   <section id="data">
     <h2>データ</h2>
     <p>{report.fetchedAt.slice(0, 10)} に一次ソースから取得したスナップショットを正規化しています（正規化 {report.normalizedAt.slice(0, 10)}）。</p>
-    <div class="table-scroll card rwrap">
+    <div class="table-scroll rwrap">
       <table class="rtable">
         <thead><tr><th>カテゴリ</th><th class="num">件数</th><th>取得元</th></tr></thead>
         <tbody>
@@ -48,7 +48,7 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
   </section>
 
   <section id="survival">
-    <h2>生身で放り出されたときの判定</h2>
+    <h2>宇宙服なしの生存時間の判定</h2>
     <p>上から順に調べ、最初に当てはまった要因を採用します。</p>
     <ol>
       <li>恒星 → 蒸発</li>
@@ -64,7 +64,7 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
 
   <section id="equipment">
     <h2>装備レベルの判定（本サイトの分類ルール）</h2>
-    <div class="table-scroll card rwrap">
+    <div class="table-scroll rwrap">
       <table class="rtable">
         <thead><tr><th>レベル</th><th>条件（上から順に判定）</th></tr></thead>
         <tbody>
@@ -77,7 +77,7 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
         </tbody>
       </table>
     </div>
-    <p class="small muted">系外惑星の平均密度が 0.05〜30 g/cm³ の範囲を外れる場合は、アーカイブの質量か半径に問題がある可能性があるため、物件ページに「データに要注意」と表示し、岩石・地表の判定を「不明」にします。離心率が1.1を超える小天体（双曲線軌道）は恒星間天体として扱います。主星の明るさがない場合は、半径と有効温度から L = R²(T/5,772 K)⁴ で、軌道長半径がない場合は公転周期と主星の質量からケプラーの第3法則（a³ = M P²）で計算します。</p>
+    <p class="small muted">系外惑星の平均密度が 0.05〜30 g/cm³ の範囲を外れる場合は、アーカイブの質量か半径に問題がある可能性があるため、天体のページに「データに要注意」と表示し、岩石・地表の判定を「不明」にします。離心率が1.1を超える小天体（双曲線軌道）は恒星間天体として扱います。主星の明るさがない場合は、半径と有効温度から L = R²(T/5,772 K)⁴ で、軌道長半径がない場合は公転周期と主星の質量からケプラーの第3法則（a³ = M P²）で計算します。</p>
     <p class="small muted">太陽系の衛星は、NASA の「厚い大気を持つ衛星はタイタンだけ」という記述に基づき、タイタン以外を「ほぼ真空」として扱っています。小天体・彗星も、体液が沸騰する気圧に達する大気は観測されていないため同様に扱います。</p>
   </section>
 
@@ -96,7 +96,7 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
   <section id="factcheck">
     <h2>参考動画のファクトチェック</h2>
     <p class="muted">企画の参考にした ゆる天文学ラジオ「移住マイスター」シリーズ3本の内容を、2026-11-01 に一次ソースで照合しました。</p>
-    <div class="table-scroll card rwrap">
+    <div class="table-scroll rwrap">
       <table class="rtable">
         <thead><tr><th>回</th><th>動画での内容</th><th>一次ソースでの照合結果</th><th>判定</th></tr></thead>
         <tbody>
@@ -119,7 +119,7 @@ const papers = Object.values(sources).filter((s) => s.kind === 'paper').length;
     <ul class="small">{Object.entries(METHOD_SOURCES).map(([, s]) => <li><a href={u(s.url)} rel="noopener">{s.label}</a></li>)}</ul>
     <h3>データベース・ファクトシート</h3>
     <ul class="small">{db.map((s) => <li><a href={u(s.url)} rel="noopener">{s.label}</a></li>)}</ul>
-    <p class="small muted">このほか、系外惑星の各値の出典として {papers.toLocaleString('ja-JP')} 件の論文などを各物件ページに表示しています。小天体は JPL Small-Body Database の各天体ページを出典としています。</p>
+    <p class="small muted">このほか、系外惑星の各値の出典として {papers.toLocaleString('ja-JP')} 件の論文などを各天体のページに表示しています。小天体は JPL Small-Body Database の各天体ページを出典としています。</p>
   </section>
 </Base>
 

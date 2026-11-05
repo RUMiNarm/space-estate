@@ -64,7 +64,7 @@ export default function Search({ preset, syncUrl = true }: Props) {
   return (
     <div class="search">
       <style>{RESULT_CSS + CSS}</style>
-      <form class="filters card" onSubmit={(e) => e.preventDefault()} aria-label="検索条件">
+      <form class="filters" onSubmit={(e) => e.preventDefault()} aria-label="検索条件">
         <div class="row">
           <label class="grow">
             <span class="lbl">名前で探す</span>
@@ -92,7 +92,7 @@ export default function Search({ preset, syncUrl = true }: Props) {
               {CATEGORY_JA[c]}
             </label>
           ))}
-          <label class="chk"><input type="checkbox" checked={f.curatedOnly} onChange={(e) => set('curatedOnly', (e.target as HTMLInputElement).checked)} />厳選物件だけ</label>
+          <label class="chk"><input type="checkbox" checked={f.curatedOnly} onChange={(e) => set('curatedOnly', (e.target as HTMLInputElement).checked)} />解説のある天体だけ</label>
         </fieldset>
         <div class="row wrap">
           <fieldset>
@@ -112,7 +112,7 @@ export default function Search({ preset, syncUrl = true }: Props) {
                 <option value="known">大気が確認されている</option>
               </select>
             </label>
-            <label class="chk"><input type="checkbox" checked={f.includeUnknown} onChange={(e) => set('includeUnknown', (e.target as HTMLInputElement).checked)} />データ不明の物件も含める</label>
+            <label class="chk"><input type="checkbox" checked={f.includeUnknown} onChange={(e) => set('includeUnknown', (e.target as HTMLInputElement).checked)} />データ不明の天体も含める</label>
           </fieldset>
           <fieldset>
             <legend>範囲</legend>
@@ -139,8 +139,8 @@ export default function Search({ preset, syncUrl = true }: Props) {
               </span>
             </div>
             <div class="rng">
-              <span class="lbl">入居条件</span>
-              <select value={f.eqMax ?? ''} aria-label="入居条件" onChange={(e) => { const v = (e.target as HTMLSelectElement).value; set('eqMax', v === '' ? null : (Number(v) as EquipmentLevel)); }}>
+              <span class="lbl">必要な装備</span>
+              <select value={f.eqMax ?? ''} aria-label="必要な装備" onChange={(e) => { const v = (e.target as HTMLSelectElement).value; set('eqMax', v === '' ? null : (Number(v) as EquipmentLevel)); }}>
                 <option value="">指定なし</option>
                 {([0, 1, 2, 3] as EquipmentLevel[]).map((l) => <option value={l}>{EQUIP[l].label} まで</option>)}
               </select>
@@ -167,7 +167,7 @@ export default function Search({ preset, syncUrl = true }: Props) {
             ))}
           </div>
           {sorted.length === 0 ? (
-            <p class="card">条件に合う物件はありません。条件をゆるめるか、「データ不明の物件も含める」をオンにしてください。</p>
+            <p class="muted">条件に合う天体はありません。</p>
           ) : (
             <ul class="res-list">{sorted.slice(0, limit).map((r) => <RowItem r={r} />)}</ul>
           )}
